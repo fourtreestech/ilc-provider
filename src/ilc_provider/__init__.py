@@ -64,7 +64,9 @@ class SquadPlayer:
         return self.player.base_player
 
     def __str__(self) -> str:
-        return f"{self.shirt_number}. {self.base_player.name}{' (GK)' if self.keeper else ''}"
+        return (
+            f"{self.shirt_number}. {self.player.name}{' (GK)' if self.keeper else ''}"
+        )
 
 
 class Team:

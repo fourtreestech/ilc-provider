@@ -3,13 +3,14 @@
 import itertools
 from collections import Counter
 
-from ilc_models import Card, EventTime, Substitution
+from ilc_models import BasePlayer, Card, EventTime, Substitution
 from ilc_provider import (
     _unique_choices,
     fake,
     invert_schedule,
     match_schedule,
     players_on,
+    SquadPlayer,
 )
 
 
@@ -129,3 +130,18 @@ class TestMatchSchedule:
         # All matches should be present in inverted form
         for home, away in matches:
             assert (away, home) in inverted_matches
+
+
+class TestSquadPlayer:
+    def test_base_player_returns_base_player_instance(self):
+        player = SquadPlayer(11)
+        base_player = player.base_player
+        assert isinstance(base_player, BasePlayer)
+
+    def test_str_includes_gk_for_keeper(self):
+        player = SquadPlayer(11, keeper=True)
+        assert "(GK)" in str(player)
+
+    def test_str_doesnt_include_gk_for_non_keeper(self):
+        player = SquadPlayer(11)
+        assert "(GK)" not in str(player)

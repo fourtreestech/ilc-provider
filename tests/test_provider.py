@@ -161,3 +161,16 @@ class TestSquad:
         squad = fake.squad()
         shirt_numbers = [player.shirt_number for player in squad]
         assert len(shirt_numbers) == len(set(shirt_numbers))
+
+
+class TestLineup:
+    def test_returns_eleven_starting_players(self):
+        lineup = fake.lineup()
+        assert len(lineup.starting) == 11
+
+    def test_starting_lineup_only_has_one_keeper(self):
+        squad = fake.squad()
+        keeper_shirts = [p.shirt_number for p in squad if p.keeper]
+        lineup = fake.lineup(squad=squad)
+        keepers = sum(1 for p in lineup.starting if p[0] in keeper_shirts)
+        assert keepers == 1

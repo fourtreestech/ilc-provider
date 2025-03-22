@@ -145,3 +145,19 @@ class TestSquadPlayer:
     def test_str_doesnt_include_gk_for_non_keeper(self):
         player = SquadPlayer(11)
         assert "(GK)" not in str(player)
+
+
+class TestSquad:
+    def test_returns_correct_size(self):
+        squad = fake.squad(size=30)
+        assert len(squad) == 30
+
+    def test_returns_correct_number_of_keepers(self):
+        squad = fake.squad(keepers=4)
+        keepers = sum(1 for player in squad if player.keeper)
+        assert keepers == 4
+
+    def test_shirt_numbers_are_unique(self):
+        squad = fake.squad()
+        shirt_numbers = [player.shirt_number for player in squad]
+        assert len(shirt_numbers) == len(set(shirt_numbers))

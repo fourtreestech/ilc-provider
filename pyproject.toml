@@ -20,5 +20,16 @@ build-backend = "hatchling.build"
 [tool.hatch.version]
 path = "src/ilc_provider/__init__.py"
 
+[tool.mypy]
+packages = ["ilc_provider"]
+
 [tool.uv.sources]
 ilc-models = { path = "../ilc-models", editable = true }
+
+[dependency-groups]
+dev = [
+    "mypy>=1.15.0",
+    "pytest>=8.3.5",
+    "pytest-cov>=6.0.0",
+    "pytest-randomly>=3.16.0",
+]

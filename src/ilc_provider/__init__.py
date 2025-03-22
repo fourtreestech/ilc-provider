@@ -1,4 +1,5 @@
 """Faker provider for ILC data models"""
+
 import datetime
 import random
 from collections.abc import MutableSequence

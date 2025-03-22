@@ -1,6 +1,6 @@
 [project]
 name = "ilc-provider"
-version = "0.1.0"
+dynamic = ["version"]
 description = "Faker provider for ILC data models"
 readme = "README.md"
 authors = [
@@ -16,6 +16,9 @@ dependencies = [
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
+
+[tool.hatch.version]
+path = "src/ilc_provider/__init__.py"
 
 [tool.uv.sources]
 ilc-models = { path = "../ilc-models", editable = true }

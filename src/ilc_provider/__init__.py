@@ -1,3 +1,4 @@
+"""Faker provider for ILC data models"""
 import datetime
 import random
 from collections.abc import MutableSequence
@@ -23,6 +24,8 @@ from ilc_models import (
     TableRow,
     Teams,
 )
+
+__version__ = "0.1.0"
 
 fake = Faker()
 

@@ -174,3 +174,27 @@ class TestLineup:
         lineup = fake.lineup(squad=squad)
         keepers = sum(1 for p in lineup.starting if p[0] in keeper_shirts)
         assert keepers == 1
+
+
+class TestMatch:
+    def test_unplayed_match_has_no_lineups_or_events(self):
+        match = fake.match(status="NS")
+        assert not match.lineups
+        assert not match.events()
+
+    def test_completed_match_has_lineups_and_events(self):
+        match = fake.match()
+        assert match.lineups
+        assert match.events()
+
+    def test_correct_goal_events(self):
+        match = fake.match()
+        home = away = 0
+        for goal in match.goals:
+            assert goal.team in (match.teams.home, match.teams.away)
+            if goal.team == match.teams.home:
+                home += 1
+            elif goal.team == match.teams.away:
+                away += 1
+        assert home == match.score.home
+        assert away == match.score.away

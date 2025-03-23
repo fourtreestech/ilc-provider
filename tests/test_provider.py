@@ -1,5 +1,6 @@
 """Tests for the ilc_provider package"""
 
+import datetime
 import itertools
 from collections import Counter
 
@@ -270,3 +271,14 @@ class TestEvents:
     def test_event_time_from_second_half(self):
         time = fake.event_time(first_half_weighting=0)
         assert time.minutes > 45
+
+
+class TestKickoff:
+    def test_kickoff_is_on_a_saturday(self):
+        kickoff = fake.kickoff()
+        assert kickoff.weekday() == 5
+
+    def test_kickoff_is_close_to_anchor(self):
+        anchor = datetime.date.today()
+        kickoff = fake.kickoff(anchor=anchor)
+        assert abs((anchor - kickoff.date()).days) < 4

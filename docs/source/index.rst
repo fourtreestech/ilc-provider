@@ -26,3 +26,4 @@ To install, run::
    :maxdepth: 2
    :caption: Contents:
 
+   api

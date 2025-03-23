@@ -1,4 +1,18 @@
-"""Faker provider for ILC data models"""
+"""Faker provider for *ILC* data models.
+
+When imported this module creates a :class:`faker.Faker` instance
+and calls ``fake.add_provider(ILCProvider)``.
+
+You can then ``from ilc_models import fake`` and use the
+providers as you would any other Faker provider e.g.::
+
+    from ilc_models import fake
+
+    player = fake.player()
+    match = fake.match()
+    league = fake.league()
+    // etc.
+"""
 
 import datetime
 import random

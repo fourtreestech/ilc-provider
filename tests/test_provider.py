@@ -288,3 +288,23 @@ class TestTableRow:
     def test_row_has_correct_number_of_matches(self):
         row = fake.table_row(matches=10)
         assert row.played == 10
+
+
+class TestLeague:
+    def test_no_matches(self):
+        league = fake.league(matches=False)
+        assert not league.matches()
+
+    def test_no_split_match_count(self):
+        league = fake.league(team_count=8, games_per_opponent=2)
+        table = league.table()
+        # 2 games per opponent = 14 matches for each team
+        for row in table:
+            assert row[1] == 14
+
+    def test_split_match_count(self):
+        league = fake.league(team_count=8, games_per_opponent=4)
+        table = league.table()
+        # 4 games per opponent = 21 pre-split, 3 post-split
+        for row in table:
+            assert row[1] == 24

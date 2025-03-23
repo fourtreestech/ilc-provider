@@ -190,11 +190,83 @@ class TestMatch:
     def test_correct_goal_events(self):
         match = fake.match()
         home = away = 0
+        # Count the goal events for each team
         for goal in match.goals:
             assert goal.team in (match.teams.home, match.teams.away)
             if goal.team == match.teams.home:
                 home += 1
-            elif goal.team == match.teams.away:
+            else:
                 away += 1
+
+        # Goal events should match the score
         assert home == match.score.home
         assert away == match.score.away
+
+
+class TestEvents:
+    def test_substitution_uses_correct_players(self):
+        on = [fake.base_player() for _ in range(5)]
+        subs = [fake.base_player() for _ in range(5)]
+        sub = fake.substitution(possible_exits=on, possible_entries=subs)
+        assert sub.player_on in subs
+        assert sub.player_off in on
+
+    def test_sub_window_uses_correct_players(self):
+        on = [fake.base_player() for _ in range(5)]
+        subs = [fake.base_player() for _ in range(5)]
+        window = fake.sub_window(possible_exits=on, possible_entries=subs)
+        for sub in window:
+            assert sub.player_on in subs
+            assert sub.player_off in on
+
+    def test_sub_window_generates_correct_number_of_subs(self):
+        window = fake.sub_window(sub_count=3)
+        assert len(window) == 3
+
+    def test_all_subs_in_window_have_the_same_time(self):
+        window = fake.sub_window(sub_count=3)
+        time = window[0].time
+        for sub in window[1:]:
+            assert sub.time == time
+
+    def test_all_subs_in_window_have_the_same_team(self):
+        window = fake.sub_window(sub_count=3)
+        team = window[0].team
+        for sub in window[1:]:
+            assert sub.team == team
+
+    def test_goal_is_scored_by_correct_team(self):
+        # Build teams and get players for each
+        team = fake.team()
+        team_lineup = fake.lineup(team.squad)
+        team_players = [p[1] for p in team_lineup.starting]
+
+        opp = fake.team()
+        opp_lineup = fake.lineup(opp.squad)
+        opp_players = [p[1] for p in opp_lineup.starting]
+
+        # Goal should be scored by one of the players from `team`
+        goal = fake.goal(team=team, goal_type="N", players=(team_players, opp_players))
+        assert goal.scorer in team_players
+
+    def test_own_goal_is_scored_by_correct_team(self):
+        # Build teams and get players for each
+        team = fake.team()
+        team_lineup = fake.lineup(team.squad)
+        team_players = [p[1] for p in team_lineup.starting]
+
+        opp = fake.team()
+        opp_lineup = fake.lineup(opp.squad)
+        opp_players = [p[1] for p in opp_lineup.starting]
+
+        # Goal should be scored by one of the players from `team`
+        goal = fake.goal(team=team, goal_type="O", players=(team_players, opp_players))
+        assert goal.scorer in opp_players
+
+    def test_event_time_from_first_half(self):
+        time = fake.event_time(first_half_weighting=100)
+        assert time.minutes < 46
+
+    def test_event_time_from_second_half(self):
+        time = fake.event_time(first_half_weighting=0)
+        assert time.minutes > 45

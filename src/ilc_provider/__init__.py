@@ -493,9 +493,9 @@ class ILCProvider(BaseProvider):
                     )
                     match.goals.append(
                         self.goal(
-                            scoring_team,
-                            time,
-                            (scoring_team_players, other_team_players),
+                            team=scoring_team,
+                            time=time,
+                            players=(scoring_team_players, other_team_players),
                         )
                     )
 
@@ -611,7 +611,7 @@ class ILCProvider(BaseProvider):
     ) -> Card:
         """Returns a randomly generated red or yellow card.
 
-        Any paramters not supplied will be randomly generated.
+        Any parameters not supplied will be randomly generated.
 
         :param team: Name of the team receiving this card (default=None)
         :type team: str
@@ -641,6 +641,7 @@ class ILCProvider(BaseProvider):
         self,
         team: Optional[Team] = None,
         time: Optional[EventTime] = None,
+        goal_type: Optional[Literal["N", "O", "P"]] = None,
         players: Optional[tuple[list[BasePlayer], list[BasePlayer]]] = None,
     ) -> Goal:
         """Returns a randomly generated goal.
@@ -651,6 +652,8 @@ class ILCProvider(BaseProvider):
         :type team: :class:`Team`
         :param time: Time of the goal (default=None)
         :type time: :class:`EventTime`
+        :param goal_type: One of 'N' (normal goal), 'O' (own goal), 'P' (penalty) (default=None)
+        :type goal_type: str
         :param players: Players who can score the goal as a two-item tuple,
                         the scoring team's players are the first item and
                         the opposing team's players (for own goals) are the
@@ -667,11 +670,13 @@ class ILCProvider(BaseProvider):
 
         # 1 in 10 goals is a penalty
         # 1 in 30 goals is an own goal
-        goal_type: Literal["N", "O", "P"] = "N"
-        if random.randint(1, 10) == 10:
-            goal_type = "P"
-        elif random.randint(1, 30) == 30:
-            goal_type = "O"
+        if goal_type is None:
+            if random.randint(1, 10) == 10:
+                goal_type = "P"
+            elif random.randint(1, 30) == 30:
+                goal_type = "O"
+            else:
+                goal_type = "N"
 
         # Own goal
         if goal_type == "O":

@@ -264,6 +264,12 @@ class TestEvents:
         goal = fake.goal(team=team, goal_type="O", players=(team_players, opp_players))
         assert goal.scorer in opp_players
 
+    def test_scorer_taken_from_team_squad(self):
+        team = fake.team()
+        players = [p.base_player for p in team.squad]
+        goal = fake.goal(team=team, goal_type="N")
+        assert goal.scorer in players
+
     def test_event_time_from_first_half(self):
         time = fake.event_time(first_half_weighting=100)
         assert time.minutes < 46
@@ -306,5 +312,21 @@ class TestLeague:
         league = fake.league(team_count=8, games_per_opponent=4)
         table = league.table()
         # 4 games per opponent = 21 pre-split, 3 post-split
+        assert league.split == 21
         for row in table:
             assert row[1] == 24
+
+    def test_split_mode_none(self):
+        league = fake.league(team_count=8, games_per_opponent=4, split_mode="none")
+        table = league.table()
+        # 4 games per opponent = 28 in total
+        for row in table:
+            assert row[1] == 28
+
+    def test_six_matches_splits_at_four(self):
+        league = fake.league(team_count=8, games_per_opponent=6)
+        table = league.table()
+        # 6 games per opponent = 28 pre-split, 6 after
+        assert league.split == 28
+        for row in table:
+            assert row[1] == 34

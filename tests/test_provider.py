@@ -282,3 +282,9 @@ class TestKickoff:
         anchor = datetime.date.today()
         kickoff = fake.kickoff(anchor=anchor)
         assert abs((anchor - kickoff.date()).days) < 4
+
+
+class TestTableRow:
+    def test_row_has_correct_number_of_matches(self):
+        row = fake.table_row(matches=10)
+        assert row.played == 10

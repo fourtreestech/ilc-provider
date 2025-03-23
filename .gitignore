@@ -9,5 +9,8 @@ wheels/
 # Virtual environments
 .venv
 
+# Test coverage
+.coverage
+
 # Mac OS files
 .DS_Store

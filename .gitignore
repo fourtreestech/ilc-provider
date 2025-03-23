@@ -14,3 +14,7 @@ wheels/
 
 # Mac OS files
 .DS_Store
+
+# Sphinx documentation
+docs/make.bat
+docs/Makefile

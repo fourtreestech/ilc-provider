@@ -115,6 +115,25 @@ class TestMatchSchedule:
             assert len(c) == 7
             assert all(v == 1 for v in c.values())
 
+    def test_schedule_manage_odd_number_of_teams(self):
+        teams = [fake.unique.team_name() for _ in range(7)]
+        schedule = match_schedule(teams)
+
+        # Schedule should be exactly 7 rounds
+        assert len(schedule) == 7
+
+        # Each team should play every other team exactly once
+        for team in teams:
+            c = Counter()
+            for round in schedule:
+                for home, away in round:
+                    if team == home:
+                        c[away] += 1
+                    elif team == away:
+                        c[home] += 1
+            assert len(c) == 6
+            assert all(v == 1 for v in c.values())
+
     def test_invert_schedule_inverts_all_matches(self):
         teams = [fake.unique.team_name() for _ in range(8)]
         schedule = match_schedule(teams)

@@ -1091,6 +1091,11 @@ def match_schedule(teams: list[Team]) -> list[list[tuple[Team, Team]]]:
     :rtype: list[list[tuple[:class:`Team`, :class:`Team`]]]
     """
     team_count = len(teams)
+
+    # Need to have an even number of teams to create the schedule
+    if team_count % 2:
+        team_count += 1
+
     rounds = []
     for round in range(team_count - 1):
         matches = []
@@ -1103,7 +1108,13 @@ def match_schedule(teams: list[Team]) -> list[list[tuple[Team, Team]]]:
                 else:
                     away = home
                     home = team_count - 1
-            matches.append((teams[home], teams[away]))
+
+            # Skip non-existent team in odd-numbered scenario
+            try:
+                matches.append((teams[home], teams[away]))
+            except IndexError:
+                pass
+
         rounds.append(matches)
 
     return rounds

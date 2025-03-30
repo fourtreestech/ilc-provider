@@ -10,7 +10,7 @@ requires-python = ">=3.11"
 license = "MIT"
 dependencies = [
     "faker>=37.0.2",
-    "ilc-models",
+    "ilc-models>=0.1.0",
 ]
 
 [build-system]
@@ -22,9 +22,6 @@ path = "src/ilc_provider/__init__.py"
 
 [tool.mypy]
 packages = ["ilc_provider"]
-
-[tool.uv.sources]
-ilc-models = { path = "../ilc-models", editable = true }
 
 [dependency-groups]
 dev = [

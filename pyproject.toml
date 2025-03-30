@@ -6,7 +6,7 @@ readme = "README.md"
 authors = [
     { name = "Neil Martin", email = "neil@fourtrees.tech" }
 ]
-requires-python = ">=3.11"
+requires-python = ">=3.12"
 license = "MIT"
 dependencies = [
     "faker>=37.0.2",
@@ -23,6 +23,15 @@ path = "src/ilc_provider/__init__.py"
 [tool.mypy]
 packages = ["ilc_provider"]
 
+[tool.tox]
+requires = ["tox>=4.24"]
+env_list = ["3.13", "3.12"]
+
+[tool.tox.env_run_base]
+description = "Run tests under {base_python}"
+deps = ["pytest>=8", "pytest-cov>=6", "pytest-randomly>=3"]
+commands = [["pytest"]]
+
 [dependency-groups]
 dev = [
     "mypy>=1.15.0",
@@ -31,4 +40,5 @@ dev = [
     "pytest-randomly>=3.16.0",
     "sphinx>=8.2.3",
     "sphinx-rtd-theme>=3.0.2",
+    "tox>=4.25.0",
 ]

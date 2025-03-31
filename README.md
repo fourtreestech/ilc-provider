@@ -24,7 +24,7 @@ See the documentation for the full list of data that can be generated.
 
 ## Usage
 
-*ilc_provider* can be used as a Pytest fixture:
+*ilc_provider* can be used as a [Pytest](https://docs.pytest.org/) fixture:
 
     # conftest.py
 

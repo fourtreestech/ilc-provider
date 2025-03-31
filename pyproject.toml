@@ -12,6 +12,18 @@ dependencies = [
     "faker>=37.0.2",
     "ilc-models>=0.1.0",
 ]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Intended Audience :: Developers",
+  "Natural Language :: English",
+  "Topic :: Software Development :: Libraries",
+  "Typing :: Typed",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+]
+
+[project.urls]
+Repository = "https://github.com/fourtreestech/ilc-provider"
 
 [build-system]
 requires = ["hatchling"]

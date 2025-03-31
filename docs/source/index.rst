@@ -27,3 +27,4 @@ To install, run::
    :caption: Contents:
 
    api
+   usage

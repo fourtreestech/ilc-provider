@@ -152,6 +152,17 @@ class TestMatchSchedule:
             assert (away, home) in inverted_matches
 
 
+class TestPlayer:
+    def test_player_has_reasonable_dob(self):
+        player = fake.player(active_date=datetime.date(2000, 1, 1))
+
+        # Player should be between 17 and 35 years old
+        # on 1 Jan 2000
+        year = int(player.dob[:4])
+        assert year >= 1965
+        assert year <= 1983
+
+
 class TestSquadPlayer:
     def test_base_player_returns_base_player_instance(self):
         player = SquadPlayer(11)

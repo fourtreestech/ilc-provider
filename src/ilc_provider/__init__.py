@@ -126,9 +126,12 @@ class ILCProvider(BaseProvider):
             name=f"{fake.first_name()[0]}. {fake.last_name()}",
         )
 
-    def player(self) -> Player:
+    def player(self, active_date: Optional[datetime.date] = None) -> Player:
         """Returns a randomly generated Player.
 
+        :param active_date: Date on which this player is active - this will
+                            be used to calculate a reasonable date of birth (default=None)
+        :type active_date: :class:`datetime.date`
         :returns: Player with randomly generated attributes
         :rtype: :class:`ilc_models.Player`
         """
@@ -136,8 +139,17 @@ class ILCProvider(BaseProvider):
         first_name = fake.first_name_male()
         last_name = fake.last_name_male()
         name = f"{first_name[0]}. {last_name}"
-        dob = fake.date_of_birth(minimum_age=17, maximum_age=35).isoformat()
         nationality = fake.country()
+
+        # Get a reasonable DOB
+        if active_date is None:
+            active_date = datetime.date.today()
+
+        age = random.choices(range(17, 36), weights=[1] * 3 + [2] * 10 + [1] * 6)[0]
+        year = active_date.year - age
+        dob = fake.date_between(
+            start_date=datetime.date(year, 1, 1), end_date=datetime.date(year, 12, 31)
+        ).isoformat()
 
         return Player(
             player_id=player_id,

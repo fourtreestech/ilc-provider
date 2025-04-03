@@ -189,14 +189,14 @@ wheels = [
 
 [[package]]
 name = "ilc-models"
-version = "0.1.0"
+version = "0.1.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "pydantic" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/53/ac/06c05c8d7dfef4983c47368a263de990455385ca992b46ec2d7288b98624/ilc_models-0.1.0.tar.gz", hash = "sha256:793ebc8c26c04172f6212115317c8330c864ff453fa04a1227d88bea59c9dc24", size = 43749 }
+sdist = { url = "https://files.pythonhosted.org/packages/74/83/207f24c8eb9b1a68690b16b806b2a9908bb309a20312c32e8ee2a83ce72f/ilc_models-0.1.1.tar.gz", hash = "sha256:0092da6dcf89f96a4c180ab393d2c02e97a58c527988a08350f290832674d8ea", size = 37459 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/cf/82/d550b82b83eab28dd303e973d9fb07de36e2c95936c6fd32de4c2dbe3e12/ilc_models-0.1.0-py3-none-any.whl", hash = "sha256:26198795ca19b91866899612f011cb44b4d28bd4e78d7a5bdaf10b3f3ca2b747", size = 9532 },
+    { url = "https://files.pythonhosted.org/packages/b1/b9/278f24cda80bcd5b5326c48510d89479ed0294b6adc9f3443ab8a4d99295/ilc_models-0.1.1-py3-none-any.whl", hash = "sha256:ba300b885114d093f5154c853e4479594a37b44b25cf6f2b83321e8968a9f012", size = 9529 },
 ]
 
 [[package]]
@@ -221,7 +221,7 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "faker", specifier = ">=37.0.2" },
-    { name = "ilc-models", specifier = ">=0.1.0" },
+    { name = "ilc-models", specifier = ">=0.1.1" },
 ]
 
 [package.metadata.requires-dev]

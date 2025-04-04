@@ -59,12 +59,20 @@ class SquadPlayer:
     :type shirt_number: int
     :param keeper: True if this player is a goalkeeper (default=False)
     :type keeper: bool
+    :param active_date: Date on which this player is active - this will
+                        be used to calculate a reasonable date of birth (default=None)
+    :type active_date: :class:`datetime.date`
     """
 
-    def __init__(self, shirt_number: int, keeper=False):
+    def __init__(
+        self,
+        shirt_number: int,
+        keeper=False,
+        active_date: Optional[datetime.date] = None,
+    ):
         self.shirt_number = shirt_number
         self.keeper = keeper
-        self.player = fake.player()
+        self.player = fake.player(active_date=active_date)
         self.selection_weight = random.randint(1, 100)
         self.scorer_weight = 1 if keeper else random.randint(2, 100)
 

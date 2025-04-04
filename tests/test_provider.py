@@ -177,6 +177,15 @@ class TestSquadPlayer:
         player = SquadPlayer(11)
         assert "(GK)" not in str(player)
 
+    def test_player_has_reasonable_dob(self):
+        player = SquadPlayer(11, active_date=datetime.date(2000, 1, 1))
+
+        # Player should be between 17 and 35 years old
+        # on 1 Jan 2000
+        year = int(player.player.dob[:4])
+        assert year >= 1965
+        assert year <= 1983
+
 
 class TestSquad:
     def test_returns_correct_size(self):

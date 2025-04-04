@@ -12,6 +12,7 @@ from ilc_provider import (
     match_schedule,
     players_on,
     SquadPlayer,
+    Team,
 )
 
 
@@ -202,9 +203,20 @@ class TestSquad:
         shirt_numbers = [player.shirt_number for player in squad]
         assert len(shirt_numbers) == len(set(shirt_numbers))
 
-    def test_player_have_reasonable_dobs(self):
+    def test_players_have_reasonable_dobs(self):
         squad = fake.squad(active_date=datetime.date(2000, 1, 1))
         for player in squad:
+            # Player should be between 17 and 35 years old
+            # on 1 Jan 2000
+            year = int(player.player.dob[:4])
+            assert year >= 1965
+            assert year <= 1983
+
+
+class TestTeam:
+    def test_players_have_reasonable_dobs(self):
+        team = Team(active_date=datetime.date(2000, 1, 1))
+        for player in team.squad:
             # Player should be between 17 and 35 years old
             # on 1 Jan 2000
             year = int(player.player.dob[:4])

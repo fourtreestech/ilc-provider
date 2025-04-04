@@ -92,11 +92,16 @@ class SquadPlayer:
 
 
 class Team:
-    """Randomly generated team."""
+    """Randomly generated team.
 
-    def __init__(self):
+    :param active_date: Date on which all players in this team's squad are active - this will
+                        be used to generate reasonable dates of birth (default=None)
+    :type active_date: :class:`datetime.date`
+    """
+
+    def __init__(self, active_date: Optional[datetime.date] = None):
         self.name = fake.unique.team_name()
-        self.squad = fake.squad()
+        self.squad = fake.squad(active_date=active_date)
         self.strength = random.randint(0, 5)
 
     def __str__(self) -> str:  # pragma: no cover

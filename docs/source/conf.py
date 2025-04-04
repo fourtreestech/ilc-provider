@@ -34,6 +34,7 @@ exclude_patterns = []
 
 intersphinx_mapping = {
     "python": ("https://docs.python.org/3", None),
+    "ilc_models": ("https://ilc-models.readthedocs.io/en/latest/", None)
 }
 
 

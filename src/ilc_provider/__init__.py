@@ -60,7 +60,7 @@ class SquadPlayer:
     :param keeper: True if this player is a goalkeeper (default=False)
     :type keeper: bool
     :param active_date: Date on which this player is active - this will
-                        be used to calculate a reasonable date of birth (default=None)
+                        be used to generate a reasonable date of birth (default=None)
     :type active_date: :class:`datetime.date`
     """
 
@@ -138,7 +138,7 @@ class ILCProvider(BaseProvider):
         """Returns a randomly generated Player.
 
         :param active_date: Date on which this player is active - this will
-                            be used to calculate a reasonable date of birth (default=None)
+                            be used to generate a reasonable date of birth (default=None)
         :type active_date: :class:`datetime.date`
         :returns: Player with randomly generated attributes
         :rtype: :class:`ilc_models.Player`
@@ -168,13 +168,18 @@ class ILCProvider(BaseProvider):
             nationality=nationality,
         )
 
-    def squad(self, size=25, keepers=3) -> list[SquadPlayer]:
+    def squad(
+        self, size=25, keepers=3, active_date: Optional[datetime.date] = None
+    ) -> list[SquadPlayer]:
         """Returns a randomly generated list of SquadPlayers.
 
         :param size: Number of players to generate (default=25)
         :type size: int
         :param keepers: Number of goalkeepers to include (default=3)
         :type keepers: int
+        :param active_date: Date on which all players in this squad are active - this will
+                            be used to generate reasonable dates of birth (default=None)
+        :type active_date: :class:`datetime.date`
         :returns: List of randomly generated squad players
         :rtype: list[:class:`SquadPlayer`]
         """
@@ -193,9 +198,12 @@ class ILCProvider(BaseProvider):
             shirt_numbers.remove(shirt)
 
         # Generate squad
-        squad = [SquadPlayer(shirt_number=n, keeper=True) for n in keeper_shirts]
+        squad = [
+            SquadPlayer(shirt_number=n, keeper=True, active_date=active_date)
+            for n in keeper_shirts
+        ]
         for n in shirt_numbers:
-            squad.append(SquadPlayer(shirt_number=n))
+            squad.append(SquadPlayer(shirt_number=n, active_date=active_date))
 
         return squad
 

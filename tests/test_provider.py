@@ -202,6 +202,15 @@ class TestSquad:
         shirt_numbers = [player.shirt_number for player in squad]
         assert len(shirt_numbers) == len(set(shirt_numbers))
 
+    def test_player_have_reasonable_dobs(self):
+        squad = fake.squad(active_date=datetime.date(2000, 1, 1))
+        for player in squad:
+            # Player should be between 17 and 35 years old
+            # on 1 Jan 2000
+            year = int(player.player.dob[:4])
+            assert year >= 1965
+            assert year <= 1983
+
 
 class TestLineup:
     def test_returns_eleven_starting_players(self):

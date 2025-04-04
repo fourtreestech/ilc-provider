@@ -312,13 +312,16 @@ class ILCProvider(BaseProvider):
         """
         return " ".join((fake.city(), fake.team_suffix())).rstrip()
 
-    def team(self) -> Team:
+    def team(self, active_date: Optional[datetime.date] = None) -> Team:
         """Returns a randomly generated team.
 
+        :param active_date: Date on which all players in this team's squad are active - this will
+                            be used to generate reasonable dates of birth (default=None)
+        :type active_date: :class:`datetime.date`
         :returns: Randomly generated team, populated with a squad of players
         :rtype: :class:`Team`
         """
-        return Team()
+        return Team(active_date=active_date)
 
     def match_id(self) -> int:
         """Returns a random match ID.
@@ -983,7 +986,7 @@ class ILCProvider(BaseProvider):
         if team_count % 2:  # pragma: no cover
             team_count -= 1
 
-        teams = [self.team() for _ in range(team_count)]
+        teams = [self.team(active_date=start_date) for _ in range(team_count)]
         league.teams = sorted([team.name for team in teams])
 
         # Get players

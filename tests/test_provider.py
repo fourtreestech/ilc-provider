@@ -390,3 +390,14 @@ class TestLeague:
         assert league.split == 28
         for row in table:
             assert row[1] == 34
+
+    def test_players_have_reasonable_dobs(self):
+        league = fake.league(matches=False)
+        min_year = league.year - 36
+        max_year = league.year - 16
+
+        for player in league.players.values():
+            # Players should be between 17 and 35 years old
+            year = int(player.dob[:4])
+            assert year >= min_year
+            assert year <= max_year

@@ -15,7 +15,7 @@ sys.path.insert(0, str(Path("..", "..", "src").resolve()))
 project = "ilc-provider"
 copyright = "2025, Neil Martin"
 author = "Neil Martin"
-release = "0.1.0"
+release = "0.1.1"
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
@@ -34,7 +34,7 @@ exclude_patterns = []
 
 intersphinx_mapping = {
     "python": ("https://docs.python.org/3", None),
-    "ilc_models": ("https://ilc-models.readthedocs.io/en/latest/", None)
+    "ilc_models": ("https://ilc-models.readthedocs.io/en/latest/", None),
 }
 
 

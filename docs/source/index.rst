@@ -1,7 +1,7 @@
 ilc-provider
 ============
 
-**Faker provider for *ILC* data models**
+**Faker provider for ILC data models**
 
 Generates fake data for all data models: players, teams, leagues, etc.
 

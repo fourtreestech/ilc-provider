@@ -10,7 +10,6 @@ Usage
 
     # Any element of the provider can be accessed
     # from this fixture:
-    # match = ilc_fake.match()
     @pytest.fixture(scope="session")
     def ilc_fake():
         return fake
@@ -20,3 +19,14 @@ Usage
     @pytest.fixture(scope="session")
     def fake_league(ilc_fake):
         return ilc_fake.league()
+
+Use as you would any other fixture::
+
+    # test_fixtures.py
+
+    def test_fake(ilc_fake):
+        player = ilc_fake.player()
+        assert player.name
+
+    def test_fake_league(fake_league):
+        assert fake_league.matches

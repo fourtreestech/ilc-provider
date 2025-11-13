@@ -379,6 +379,10 @@ class ILCProvider(BaseProvider):
         if away is None:
             away = fake.team()
 
+        # Help out the type checker
+        assert home is not None
+        assert away is not None
+
         # Create match object
         match = Match(
             match_id=fake.unique.match_id(),

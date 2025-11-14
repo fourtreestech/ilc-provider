@@ -1,6 +1,6 @@
 [project]
 name = "ilc-provider"
-dynamic = ["version"]
+version = "0.1.1"
 description = "Faker provider for ILC data models"
 readme = "README.md"
 authors = [
@@ -30,8 +30,31 @@ Documentation = "https://ilc-provider.readthedocs.io/"
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
-[tool.hatch.version]
-path = "src/ilc_provider/__init__.py"
+[tool.bumpver]
+current_version = "0.1.1"
+version_pattern = "MAJOR.MINOR.PATCH"
+commit_message = "Bump version {old_version} -> {new_version}"
+tag_message = "{new_version}"
+tag_scope = "default"
+pre_commit_hook = ""
+post_commit_hook = ""
+commit = true
+tag = false
+push = false
+
+[tool.bumpver.file_patterns]
+"pyproject.toml" = [
+    'version = "{version}"',
+]
+"README.md" = [
+    'version-{version}-blue',
+]
+"src/ilc_provider/__init__.py" = [
+    '__version__ = "{version}"'
+]
+"docs/source/conf.py" = [
+    'release = "{version}"'
+]
 
 [tool.mypy]
 packages = ["ilc_provider"]

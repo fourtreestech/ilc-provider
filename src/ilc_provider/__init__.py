@@ -882,6 +882,9 @@ class ILCProvider(BaseProvider):
             + lost * random.randint(10, 30)
         ) // 10
 
+        # Form
+        form = random.sample("WDL", min(matches, 5), counts=[won, drawn, lost])
+
         return TableRow(
             team=team.name,
             won=won,
@@ -889,6 +892,7 @@ class ILCProvider(BaseProvider):
             lost=lost,
             scored=scored,
             conceded=conceded,
+            form="".join(form),
         )
 
     def league_id(self) -> int:

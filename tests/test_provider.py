@@ -52,7 +52,7 @@ class TestPlayersOn:
         time = EventTime(minutes=60)
 
         # First player should no longer be on the pitch
-        players = players_on(team, starting, events, time)
+        players = players_on(team, starting, events, time)  # type: ignore
         assert len(players) == 11
         assert starting[0] not in players
         assert on in players
@@ -68,7 +68,7 @@ class TestPlayersOn:
         time = EventTime(minutes=60)
 
         # First player should no longer be on the pitch
-        players = players_on(team, starting, events, time)
+        players = players_on(team, starting, events, time)  # type: ignore
         assert len(players) == 10
         assert starting[0] not in players
 
@@ -83,7 +83,7 @@ class TestPlayersOn:
         time = EventTime(minutes=60)
 
         # First player should still be on the pitch
-        players = players_on(team, starting, events, time)
+        players = players_on(team, starting, events, time)  # type: ignore
         assert len(players) == 11
         assert starting[0] in players
 
@@ -354,6 +354,20 @@ class TestTableRow:
     def test_row_has_correct_number_of_matches(self):
         row = fake.table_row(matches=10)
         assert row.played == 10
+
+    def test_adds_form(self):
+        row = fake.table_row(matches=5)
+        assert len(row.form) == 5
+
+    def test_adds_correct_results_to_form(self):
+        row = fake.table_row(matches=5)
+        assert row.form.count("W") == row.won
+        assert row.form.count("D") == row.drawn
+        assert row.form.count("L") == row.lost
+
+    def test_fewer_matches_gives_shorter_form(self):
+        row = fake.table_row(matches=3)
+        assert len(row.form) == 3
 
 
 class TestLeague:

@@ -1055,7 +1055,15 @@ class ILCProvider(BaseProvider):
                 for m in r
             ]
             league.rounds[round_name] = round_matches
-            kickoff += datetime.timedelta(days=7)
+
+            # Tuesday night games every fourth week
+            match n % 4:
+                case 0, 1:
+                    kickoff += datetime.timedelta(days=7)
+                case 2:
+                    kickoff += datetime.timedelta(days=3)
+                case 3:
+                    kickoff += datetime.timedelta(days=4)
 
         # Generate post-split matches
         games_after_split = games_per_opponent - (

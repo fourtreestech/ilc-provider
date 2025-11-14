@@ -415,3 +415,10 @@ class TestLeague:
             year = int(player.dob[:4])
             assert year >= min_year
             assert year <= max_year
+
+    def test_league_lasts_less_than_nine_months(self):
+        league = fake.league(team_count=24)
+        duration = datetime.date.fromisoformat(
+            league.end
+        ) - datetime.date.fromisoformat(league.start)
+        assert duration.days < 270

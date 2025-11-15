@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.1.3] - 2025-11-15
+
+### Fixed
+
+- Ensure a team has only match per day
+
 ## [0.1.2] - 2025-11-14
 
 ### Changed
@@ -20,6 +26,8 @@
 ## [0.1.0] - 2025-04-03
 
 _Initial release._
+
+[0.1.3]: https://github.com/fourtreestech/ilc-provider/releases/tag/v0.1.3
 
 [0.1.2]: https://github.com/fourtreestech/ilc-provider/releases/tag/v0.1.2
 

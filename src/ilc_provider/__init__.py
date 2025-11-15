@@ -40,7 +40,7 @@ from ilc_models import (
     Teams,
 )
 
-__version__ = "0.1.2"
+__version__ = "0.1.3"
 
 fake = Faker()
 

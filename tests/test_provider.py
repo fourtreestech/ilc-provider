@@ -2,6 +2,7 @@
 
 import datetime
 import itertools
+import random
 from collections import Counter
 
 from ilc_models import BasePlayer, Card, EventTime, Substitution
@@ -422,3 +423,11 @@ class TestLeague:
             league.end
         ) - datetime.date.fromisoformat(league.start)
         assert duration.days < 270
+
+    def test_no_team_has_more_than_one_match_per_day(self):
+        league = fake.league(team_count=8)
+        team = random.choice(league.teams)
+        dates = set()
+        for match in league.matches(team=team):
+            assert match.date not in dates
+            dates.add(match.date)

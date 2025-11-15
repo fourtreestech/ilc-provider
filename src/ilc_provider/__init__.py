@@ -789,8 +789,8 @@ class ILCProvider(BaseProvider):
         """Returns a randomly generated kickoff time.
 
         If ``anchor`` is provided the kickoff will be on that day at 15:00 or 17:30,
-        the following day at 15:00, or at 19:45 on d-1, d+2 or d+3.
-        This simulates a gameweek being played across a Friday to Tuesday,
+        the following day at 15:00, or at 19:45 on d-1.
+        This simulates a gameweek being played across a Friday to Sunday,
         where ``anchor`` is the Saturday.
 
         If ``anchor`` is not provided the kickoff will be a random Saturday at 3pm.
@@ -816,11 +816,9 @@ class ILCProvider(BaseProvider):
             datetime.timedelta(hours=15),  # Sat 15:00
             datetime.timedelta(hours=17, minutes=30),  # Sat 17:30
             datetime.timedelta(days=1, hours=15),  # Sun 15:00
-            datetime.timedelta(days=2, hours=19, minutes=45),  # Mon 19:45
-            datetime.timedelta(days=3, hours=19, minutes=45),  # Tue 19:45
         )
         # Sat 3pm is most likely
-        weights = (2, 4, 2, 1, 1, 2)
+        weights = (2, 4, 2, 1)
         delta = random.choices(deltas, weights, k=1)[0]
 
         # Make datetime object and return
@@ -1057,12 +1055,12 @@ class ILCProvider(BaseProvider):
             league.rounds[round_name] = round_matches
 
             # Tuesday night games every fourth week
-            match n % 4:
-                case 0, 1:
+            match n % 5:
+                case 0 | 1 | 2:
                     kickoff += datetime.timedelta(days=7)
-                case 2:
-                    kickoff += datetime.timedelta(days=3)
                 case 3:
+                    kickoff += datetime.timedelta(days=3)
+                case 4:
                     kickoff += datetime.timedelta(days=4)
 
         # Generate post-split matches

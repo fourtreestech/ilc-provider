@@ -392,6 +392,23 @@ class TestTableRow:
         row = fake.table_row(matches=3)
         assert len(row.form) == 3
 
+    def test_result_weights_are_never_negative(self, monkeypatch):
+        sample = random.sample
+        counts_seen = []
+
+        def recording_sample(population, k, *, counts=None):
+            if counts is not None:
+                counts_seen.append(list(counts))
+            return sample(population, k, counts=counts)
+
+        monkeypatch.setattr(random, "sample", recording_sample)
+        team = Team()
+        for strength in range(6):
+            team.strength = strength
+            for matches in range(1, 39):
+                fake.table_row(matches=matches, team=team)
+        assert all(c >= 0 for counts in counts_seen for c in counts)
+
 
 class TestLeague:
     def test_no_matches(self):

@@ -20,6 +20,7 @@ classifiers = [
   "Typing :: Typed",
   "Programming Language :: Python :: 3.12",
   "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3.14",
 ]
 
 [project.urls]
@@ -60,13 +61,33 @@ push = false
 percent_path = ["totals", "percent_covered_display"]
 
 [tool.tox]
-requires = ["tox>=4.24"]
-env_list = ["3.13", "3.12"]
+requires = ["tox>=4.24", "tox-uv>=1.37.0"]
+env_list = ["3.14", "3.13", "3.12", "lowest", "highest"]
 
 [tool.tox.env_run_base]
 description = "Run tests under {base_python}"
-deps = ["pytest>=8", "pytest-cov>=6", "pytest-randomly>=3"]
+runner = "uv-venv-lock-runner"
+package = "editable"
+dependency_groups = ["test"]
 commands = [["pytest"]]
+
+[tool.tox.env.lowest]
+description = "Run tests under {base_python} with lowest dependency versions"
+runner = "uv-venv-runner"
+base_python = ["python3.12"]
+skip_install = true
+dependency_groups = []
+allowlist_externals = ["uv"]
+commands_pre = [["uv", "pip", "install", "--resolution", "lowest", "-e", ".", "--group", "pyproject.toml:test"]]
+
+[tool.tox.env.highest]
+description = "Run tests under {base_python} with highest dependency versions"
+runner = "uv-venv-runner"
+base_python = ["python3.14"]
+skip_install = true
+dependency_groups = []
+allowlist_externals = ["uv"]
+commands_pre = [["uv", "pip", "install", "--resolution", "highest", "--upgrade", "-e", ".", "--group", "pyproject.toml:test"]]
 
 [tool.uv]
 default-groups = ["dev", "test"]

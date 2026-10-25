@@ -72,13 +72,13 @@ dependency_groups = ["test"]
 commands = [["pytest"]]
 
 [tool.tox.env.lowest]
-description = "Run tests under {base_python} with lowest dependency versions"
+description = "Run tests under {base_python} with lowest direct dependency versions"
 runner = "uv-venv-runner"
 base_python = ["python3.12"]
 skip_install = true
 dependency_groups = []
 allowlist_externals = ["uv"]
-commands_pre = [["uv", "pip", "install", "--resolution", "lowest", "-e", ".", "--group", "pyproject.toml:test"]]
+commands_pre = [["uv", "pip", "install", "--resolution", "lowest-direct", "-e", ".", "--group", "pyproject.toml:test"]]
 
 [tool.tox.env.highest]
 description = "Run tests under {base_python} with highest dependency versions"

@@ -21,7 +21,7 @@ from collections.abc import MutableSequence
 from operator import attrgetter
 from typing import Any, Literal
 
-from faker import Faker, Generator
+from faker import Faker
 from faker.providers import BaseProvider
 from ilc_models import (
     BasePlayer,
@@ -114,29 +114,13 @@ class Team:
 class ILCProvider(BaseProvider):
     """Faker provider for ILC data models."""
 
-    def __init__(self, generator: Generator) -> None:
-        """Initialize the provider.
-
-        Args:
-            generator (Generator): Faker generator this provider is attached to.
-        """
-        super().__init__(generator)
-        self.player_ids: set[int] = set()
-
     def player_id(self) -> int:
         """Return a random player ID.
 
         Returns:
             int: Random player ID between 1 and 999,999
         """
-        while True:
-            pid = random.randint(1, 999_999)
-
-            # The `player_ids` set ensures uniqueness
-            # within this `ILCProvider` instance
-            if pid not in self.player_ids:
-                self.player_ids.add(pid)
-                return pid
+        return random.randint(1, 999_999)
 
     def base_player(self) -> BasePlayer:
         """Return a randomly generated BasePlayer.

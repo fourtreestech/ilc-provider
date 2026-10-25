@@ -164,6 +164,12 @@ def _age(dob: str, on: datetime.date) -> int:
 
 
 class TestPlayer:
+    def test_player_id_has_no_hidden_uniqueness(self, monkeypatch):
+        values = iter([42, 42])
+        monkeypatch.setattr(random, "randint", lambda a, b: next(values))
+
+        assert [fake.player_id(), fake.player_id()] == [42, 42]
+
     def test_player_has_reasonable_dob(self):
         active_date = datetime.date(2000, 1, 1)
         player = fake.player(active_date=active_date)
@@ -199,13 +205,12 @@ class TestSquadPlayer:
         assert "(GK)" not in str(player)
 
     def test_player_has_reasonable_dob(self):
-        player = SquadPlayer(11, active_date=datetime.date(2000, 1, 1))
+        active_date = datetime.date(2000, 1, 1)
+        player = SquadPlayer(11, active_date=active_date)
 
         # Player should be between 17 and 35 years old
         # on 1 Jan 2000
-        year = int(player.player.dob[:4])
-        assert year >= 1965
-        assert year <= 1983
+        assert 17 <= _age(player.player.dob, active_date) <= 35
 
 
 class TestSquad:
@@ -224,13 +229,12 @@ class TestSquad:
         assert len(shirt_numbers) == len(set(shirt_numbers))
 
     def test_players_have_reasonable_dobs(self):
-        squad = fake.squad(active_date=datetime.date(2000, 1, 1))
+        active_date = datetime.date(2000, 1, 1)
+        squad = fake.squad(active_date=active_date)
         for player in squad:
             # Player should be between 17 and 35 years old
             # on 1 Jan 2000
-            year = int(player.player.dob[:4])
-            assert year >= 1965
-            assert year <= 1983
+            assert 17 <= _age(player.player.dob, active_date) <= 35
 
 
 class TestTeam:

@@ -56,6 +56,9 @@ push = false
     'release = "{version}"'
 ]
 
+[tool.cov-badge]
+percent_path = ["totals", "percent_covered_display"]
+
 [tool.tox]
 requires = ["tox>=4.24"]
 env_list = ["3.13", "3.12"]

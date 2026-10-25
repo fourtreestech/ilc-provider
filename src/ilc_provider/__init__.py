@@ -1143,9 +1143,9 @@ class ILCProvider(BaseProvider):
 
             split_rounds = [s[:] for s in split_schedule]
             for _ in range(1, games_after_split):
-                for schedule, rounds in zip(split_schedule, split_rounds, strict=True):
-                    inv_s = invert_schedule(schedule)
-                    rounds += inv_s
+                split_schedule = [invert_schedule(s) for s in split_schedule]
+                for rounds, schedule in zip(split_rounds, split_schedule, strict=True):
+                    rounds += schedule
 
             # Generate matches
             split_kickoff = kickoff + datetime.timedelta(days=7)

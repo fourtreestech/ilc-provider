@@ -427,6 +427,21 @@ class TestLeague:
         for row in table:
             assert row[1] == 34
 
+    def test_post_split_home_and_away_alternate(self):
+        # 2 games pre-split and 4 post-split, so every pair plays an equal
+        # number of home and away games
+        league = fake.league(
+            team_count=8,
+            games_per_opponent=6,
+            split_mode="fixed",
+            games_before_split=2,
+        )
+        names = [row[0] for row in league.table()]
+        for home, away in itertools.combinations(names, 2):
+            h2h = league.head_to_head((home, away))
+            home_count = sum(m.teams.home == home for m in h2h)
+            assert home_count * 2 == len(h2h)
+
     def test_players_have_reasonable_dobs(self):
         league = fake.league(matches=False)
         min_year = league.year - 36

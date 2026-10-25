@@ -11,7 +11,7 @@ providers as you would any other Faker provider e.g.::
     player = fake.player()
     match = fake.match()
     league = fake.league()
-    // etc.
+    # etc.
 """
 
 import contextlib
@@ -355,14 +355,14 @@ class ILCProvider(BaseProvider):
 
         Takes a number of optional parameters which if supplied
         will be added to the match. Any parameters not
-        supplied will be randomly generated.
+        supplied will be randomly generated (``status`` defaults to 'FT').
 
         Args:
             kickoff (datetime.datetime | None): Kickoff time. Defaults to None.
             round (str | None): Round this match is part of. Defaults to None.
             home (Team | None): Home team. Defaults to None.
             away (Team | None): Away team. Defaults to None.
-            status (str | None): Match status. Defaults to None.
+            status (str | None): Match status. Defaults to 'FT'.
 
 
         Returns:
@@ -585,8 +585,8 @@ class ILCProvider(BaseProvider):
         Args:
             team (str | None): Name of the team making this substitution. Defaults to
                 None.
-            sub_count (int): Number of substitutions to be made in this window. Defaults
-                to 0.
+            sub_count (int): Number of substitutions to be made in this window, or 0 to
+                choose a random number. Defaults to 0.
             time (EventTime | None): Time of the substitutions. Defaults to None.
             possible_exits (list[BasePlayer] | None): Players who can come off the
                 field. Defaults to None.
@@ -790,7 +790,7 @@ class ILCProvider(BaseProvider):
 
         Args:
             first_half_weighting (int): Weight / 100 to give to a time in the first
-                half.
+                half. Defaults to 50.
 
 
         Returns:
@@ -869,7 +869,8 @@ class ILCProvider(BaseProvider):
         Any parameters not supplied will be randomly generated.
 
         Args:
-            matches (int): Matches played. Defaults to 0.
+            matches (int): Matches played, or 0 to choose a random number between 1
+                and 38. Defaults to 0.
             team (Team | None): Team. Defaults to None.
 
 
@@ -935,7 +936,7 @@ class ILCProvider(BaseProvider):
         """Return a random league ID.
 
         Returns:
-            int: Random match ID between 1 and 999
+            int: Random league ID between 1 and 999
         """
         return random.randint(1, 999)
 
@@ -977,7 +978,9 @@ class ILCProvider(BaseProvider):
         Any other parameters not supplied will be randomly generated.
 
         Args:
-            team_count (int): Number of teams in this league. Defaults to 0.
+            team_count (int): Number of teams in this league, or 0 to choose a random
+                even number between 8 and 24. An odd number is rounded down to the
+                nearest even number. Defaults to 0.
             matches (bool): Whether matches should be added to this league. Defaults to
                 True.
             games_per_opponent (int): Number of games to play against each other team
@@ -993,8 +996,8 @@ class ILCProvider(BaseProvider):
             League: Randomly generated league
 
         Raises:
-            ValueError: If ``split_mode`` is 'fixed' and ``games_before_split`` is not
-                less than ``games_per_opponent``.
+            ValueError: If ``matches`` is true, ``split_mode`` is 'fixed' and
+                ``games_before_split`` is not less than ``games_per_opponent``.
         """
         # Basic info
         league_id = fake.unique.league_id()
@@ -1100,7 +1103,7 @@ class ILCProvider(BaseProvider):
             ]
             league.rounds[round_name] = round_matches
 
-            # Tuesday night games every fourth week
+            # Tuesday night games every fifth round
             match n % 5:
                 case 0 | 1 | 2:
                     kickoff += datetime.timedelta(days=7)

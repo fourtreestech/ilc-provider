@@ -4,7 +4,7 @@
 
 ### Fixed
 
-- Ensure a team has only match per day
+- Ensure a team has only one match per day
 
 ## [0.1.2] - 2025-11-14
 

@@ -6,6 +6,7 @@
 
 - Add `midweek` option to `kickoff` for Tuesday/Wednesday 19:45 kickoffs
 - Support Python 3.14
+- Add `user` provider generating fake `User` instances, with an optional `password_hash` to skip password hashing
 
 ### Changed
 

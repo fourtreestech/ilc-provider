@@ -157,15 +157,31 @@ class TestMatchSchedule:
             assert (away, home) in inverted_matches
 
 
+def _age(dob: str, on: datetime.date) -> int:
+    """Return the exact age in years of someone born on `dob` as of `on`."""
+    born = datetime.date.fromisoformat(dob)
+    return on.year - born.year - ((on.month, on.day) < (born.month, born.day))
+
+
 class TestPlayer:
     def test_player_has_reasonable_dob(self):
-        player = fake.player(active_date=datetime.date(2000, 1, 1))
+        active_date = datetime.date(2000, 1, 1)
+        player = fake.player(active_date=active_date)
 
-        # Player should be between 17 and 35 years old
-        # on 1 Jan 2000
-        year = int(player.dob[:4])
-        assert year >= 1965
-        assert year <= 1983
+        # Player should be between 17 and 35 years old on 1 Jan 2000
+        assert 17 <= _age(player.dob, active_date) <= 35
+
+    @pytest.mark.parametrize(
+        "active_date", [datetime.date(2000, 6, 15), datetime.date(2000, 2, 29)]
+    )
+    @pytest.mark.parametrize(("age", "pick"), [(17, "end_date"), (35, "start_date")])
+    def test_dob_gives_exact_age_at_window_edges(
+        self, monkeypatch, active_date, age, pick
+    ):
+        monkeypatch.setattr(random, "choices", lambda *args, **kwargs: [age])
+        monkeypatch.setattr(fake, "date_between", lambda **kw: kw[pick])
+        player = fake.player(active_date=active_date)
+        assert _age(player.dob, active_date) == age
 
 
 class TestSquadPlayer:
@@ -219,13 +235,12 @@ class TestSquad:
 
 class TestTeam:
     def test_players_have_reasonable_dobs(self):
-        team = Team(active_date=datetime.date(2000, 1, 1))
+        active_date = datetime.date(2000, 1, 1)
+        team = Team(active_date=active_date)
         for player in team.squad:
             # Player should be between 17 and 35 years old
             # on 1 Jan 2000
-            year = int(player.player.dob[:4])
-            assert year >= 1965
-            assert year <= 1983
+            assert 17 <= _age(player.player.dob, active_date) <= 35
 
 
 class TestLineup:

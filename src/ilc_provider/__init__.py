@@ -176,10 +176,11 @@ class ILCProvider(BaseProvider):
             active_date = datetime.date.today()
 
         age = random.choices(range(17, 36), weights=[1] * 3 + [2] * 10 + [1] * 6)[0]
-        year = active_date.year - age
-        dob = fake.date_between(
-            start_date=datetime.date(year, 1, 1), end_date=datetime.date(year, 12, 31)
-        ).isoformat()
+        # Any date from the day after their (age + 1)th birthday
+        # to their `age`th birthday makes them exactly `age` on active_date
+        latest = _years_before(active_date, age)
+        earliest = _years_before(active_date, age + 1) + datetime.timedelta(days=1)
+        dob = fake.date_between(start_date=earliest, end_date=latest).isoformat()
 
         return Player(
             player_id=player_id,
@@ -1295,6 +1296,25 @@ def players_on(
                         players.remove(player)
 
     return players
+
+
+def _years_before(date: datetime.date, years: int) -> datetime.date:
+    """Return the date `years` years before `date`.
+
+    29 February maps to 28 February when the earlier year is not a leap year.
+
+    Args:
+        date (datetime.date): Date to count back from.
+        years (int): Number of years to go back.
+
+
+    Returns:
+        datetime.date: The same day and month `years` years earlier
+    """
+    try:
+        return date.replace(year=date.year - years)
+    except ValueError:
+        return date.replace(year=date.year - years, day=28)
 
 
 def _unique_choices(

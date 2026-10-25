@@ -56,9 +56,6 @@ push = false
     'release = "{version}"'
 ]
 
-[tool.mypy]
-packages = ["ilc_provider"]
-
 [tool.tox]
 requires = ["tox>=4.24"]
 env_list = ["3.13", "3.12"]
@@ -71,7 +68,6 @@ commands = [["pytest"]]
 [dependency-groups]
 dev = [
     "cov-badge>=0.1.1",
-    "mypy>=1.15.0",
     "pytest>=8.3.5",
     "pytest-cov>=6.0.0",
     "pytest-randomly>=3.16.0",

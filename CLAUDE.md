@@ -30,4 +30,4 @@ The whole package is a single module, `src/ilc_provider/__init__.py`:
 - Helper classes `SquadPlayer` and `Team` wrap `ilc_models` objects with extra generation-only state (e.g. selection/scorer weights used to pick lineups and goal scorers). They call back into the module-level `fake` rather than into the provider instance.
 - Module-level helpers (`match_schedule`, `invert_schedule`, `players_on`, `_unique_choices`) are used by the provider methods for scheduling and player selection.
 - Generated objects are the models from the `ilc-models` dependency; changes to those models may require changes here.
-- Docs are Sphinx (`docs/source`, `api.rst` documents the module via docstrings), so public methods need Sphinx-style docstrings (`:param:`/`:type:`).
+- Docs are Sphinx (`docs/source`, `api.rst` documents the module via docstrings), so public methods need Google-style docstrings (`Args:`/`Returns:`, rendered by napoleon).

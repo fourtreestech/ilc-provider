@@ -573,3 +573,14 @@ class TestLeague:
         for match in league.matches(team=team):
             assert match.date not in dates
             dates.add(match.date)
+
+
+class TestUser:
+    def test_username_is_first_part_of_email(self):
+        user = fake.user()
+        assert user.email.startswith(user.username)
+
+    def test_password_is_correctly_stored(self):
+        password = fake.password()
+        user = fake.user(password=password)
+        assert user.verify_password(password)

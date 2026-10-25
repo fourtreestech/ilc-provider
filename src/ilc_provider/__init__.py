@@ -38,6 +38,7 @@ from ilc_models import (
     Substitution,
     TableRow,
     Teams,
+    User,
 )
 
 __version__ = "0.1.3"
@@ -1194,6 +1195,34 @@ class ILCProvider(BaseProvider):
         league.end = matches_played[-1].date.isoformat()
 
         return league
+
+    def user(
+        self,
+        email: str | None = None,
+        password: str | None = None,
+        username: str | None = None,
+        status: Literal["pending", "active"] | None = None,
+    ) -> User:
+        """Return a randomly generated user.
+
+        Takes a number of optional parameters which if supplied
+        will be added to the user. Any parameters not
+        supplied will be randomly generated (``status`` defaults to 'pending').
+
+        Args:
+            email: User email.
+            password: User password.
+            username: User's username.
+            status: User status.
+
+        Returns:
+            Match: Randomly generated user
+        """
+        user_email = email or fake.email()
+        user_password = password or fake.password()
+        user_username = username or None
+        user_status = status or "pending"
+        return User.create(user_email, user_password, user_username, user_status)
 
 
 def match_schedule(teams: list[Team]) -> list[list[tuple[Team, Team]]]:

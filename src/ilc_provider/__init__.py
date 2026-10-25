@@ -989,6 +989,10 @@ class ILCProvider(BaseProvider):
 
         Returns:
             League: Randomly generated league
+
+        Raises:
+            ValueError: If ``split_mode`` is 'fixed' and ``games_before_split`` is not
+                less than ``games_per_opponent``.
         """
         # Basic info
         league_id = fake.unique.league_id()
@@ -1058,6 +1062,11 @@ class ILCProvider(BaseProvider):
                 games_before_split = games_per_opponent - 1
             else:
                 games_before_split = games_per_opponent - 2
+        elif games_before_split >= games_per_opponent:
+            raise ValueError(
+                "games_before_split must be less than games_per_opponent in 'fixed' "
+                "split mode"
+            )
         league.split = games_before_split * (team_count - 1)
 
         # Generate a set of match days

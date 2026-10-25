@@ -5,6 +5,7 @@ import itertools
 import random
 from collections import Counter
 
+import pytest
 from ilc_models import BasePlayer, Card, EventTime, Substitution
 
 from ilc_provider import (
@@ -426,6 +427,16 @@ class TestLeague:
         assert league.split == 28
         for row in table:
             assert row[1] == 34
+
+    @pytest.mark.parametrize("games_before_split", [2, 3])
+    def test_fixed_split_must_leave_games_after_split(self, games_before_split):
+        with pytest.raises(ValueError):
+            fake.league(
+                team_count=4,
+                games_per_opponent=2,
+                split_mode="fixed",
+                games_before_split=games_before_split,
+            )
 
     def test_post_split_home_and_away_alternate(self):
         # 2 games pre-split and 4 post-split, so every pair plays an equal

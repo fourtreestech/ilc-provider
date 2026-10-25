@@ -1202,27 +1202,51 @@ class ILCProvider(BaseProvider):
         password: str | None = None,
         username: str | None = None,
         status: Literal["pending", "active"] | None = None,
+        password_hash: str | None = None,
     ) -> User:
         """Return a randomly generated user.
 
         Takes a number of optional parameters which if supplied
-        will be added to the user. Any parameters not
-        supplied will be randomly generated (``status`` defaults to 'pending').
+        will be added to the user. A ``email`` or ``password`` that is not
+        supplied is randomly generated, and a generated email is unique
+        (as is the username derived from it). The ``username`` is not
+        random: if not supplied it is the part of the email before the '@'.
+        If ``status`` is not supplied the model's default ('pending') applies.
+
+        Hashing a password is slow, so when generating many users hash a
+        password once and pass the resulting ``password_hash`` to each.
 
         Args:
             email: User email.
-            password: User password.
+            password: User password. Mutually exclusive with ``password_hash``.
             username: User's username.
             status: User status.
+            password_hash: Precomputed Argon2 password hash, used instead of
+                hashing a password. Mutually exclusive with ``password``.
 
         Returns:
-            Match: Randomly generated user
+            User: Randomly generated user
+
+        Raises:
+            ValueError: If both ``password`` and ``password_hash`` are supplied.
+            ValidationError: If the email is invalid or the password is empty.
         """
-        user_email = email or fake.email()
-        user_password = password or fake.password()
-        user_username = username or None
-        user_status = status or "pending"
-        return User.create(user_email, user_password, user_username, user_status)
+        if password is not None and password_hash is not None:
+            msg = "provide either password or password_hash, not both"
+            raise ValueError(msg)
+        if email is None:
+            email = f"{fake.unique.user_name()}@{fake.domain_name()}"
+        data: dict[str, Any] = {
+            "email": email,
+            "username": username or email.split("@")[0],
+        }
+        if status is not None:
+            data["status"] = status
+        if password_hash is None:
+            data["password"] = fake.password() if password is None else password
+        else:
+            data["password_hash"] = password_hash
+        return User.model_validate(data)
 
 
 def match_schedule(teams: list[Team]) -> list[list[tuple[Team, Team]]]:

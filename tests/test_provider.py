@@ -7,6 +7,7 @@ from collections import Counter
 
 import pytest
 from ilc_models import BasePlayer, Card, EventTime, Substitution
+from pydantic import ValidationError
 
 from ilc_provider import (
     ILCProvider,
@@ -578,7 +579,38 @@ class TestLeague:
 class TestUser:
     def test_username_is_first_part_of_email(self):
         user = fake.user()
-        assert user.email.startswith(user.username)
+        assert user.username == user.email.split("@")[0]
+
+    def test_default_status_is_pending(self):
+        assert fake.user().status == "pending"
+
+    def test_supplied_values_are_kept(self):
+        user = fake.user(email="a@b.com", username="abc", status="active")
+        assert (user.email, user.username, user.status) == ("a@b.com", "abc", "active")
+
+    def test_empty_password_is_rejected(self):
+        with pytest.raises(ValidationError):
+            fake.user(password="")
+
+    def test_empty_email_is_rejected(self):
+        with pytest.raises(ValidationError):
+            fake.user(email="")
+
+    def test_generated_emails_and_usernames_are_unique(self):
+        users = [fake.user(password_hash=fake.user().password_hash) for _ in range(50)]
+        assert len({u.email for u in users}) == 50
+        assert len({u.username for u in users}) == 50
+
+    def test_password_hash_is_used(self):
+        password = fake.password()
+        user = fake.user(password=password)
+        other = fake.user(password_hash=user.password_hash)
+        assert other.password_hash == user.password_hash
+        assert other.verify_password(password)
+
+    def test_password_and_hash_are_mutually_exclusive(self):
+        with pytest.raises(ValueError, match="not both"):
+            fake.user(password="x", password_hash="y")
 
     def test_password_is_correctly_stored(self):
         password = fake.password()

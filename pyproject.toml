@@ -107,3 +107,12 @@ docs = [
     "sphinx>=8.2.3",
     "sphinx-rtd-theme>=3.0.2",
 ]
+[tool.ruff.lint]
+select = ["F", "I", "B", "C4", "SIM", "RUF", "D", "D401"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["D"]
+"docs/**" = ["D"]
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"

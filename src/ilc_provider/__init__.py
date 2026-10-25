@@ -3,10 +3,10 @@
 When imported this module creates a :class:`faker.Faker` instance
 and calls ``fake.add_provider(ILCProvider)``.
 
-You can then ``from ilc_models import fake`` and use the
+You can then ``from ilc_provider import fake`` and use the
 providers as you would any other Faker provider e.g.::
 
-    from ilc_models import fake
+    from ilc_provider import fake
 
     player = fake.player()
     match = fake.match()
@@ -14,6 +14,7 @@ providers as you would any other Faker provider e.g.::
     // etc.
 """
 
+import contextlib
 import datetime
 import random
 from collections.abc import MutableSequence
@@ -54,13 +55,11 @@ class SquadPlayer:
         * ``selection_weight``: How likely this player is to be selected (1-100)
         * ``scorer_weight``: How likely this player is to score a goal (1-100)
 
-    :param shirt_number: Player's squad number
-    :type shirt_number: int
-    :param keeper: True if this player is a goalkeeper (default=False)
-    :type keeper: bool
-    :param active_date: Date on which this player is active - this will
-                        be used to generate a reasonable date of birth (default=None)
-    :type active_date: :class:`datetime.date`
+    Args:
+        shirt_number (int): Player's squad number.
+        keeper (bool): True if this player is a goalkeeper. Defaults to False.
+        active_date (datetime.date | None): Date on which this player is active - this
+            will be used to generate a reasonable date of birth. Defaults to None.
     """
 
     def __init__(
@@ -69,6 +68,7 @@ class SquadPlayer:
         keeper=False,
         active_date: datetime.date | None = None,
     ):
+        """Initialize the squad player."""
         self.shirt_number = shirt_number
         self.keeper = keeper
         self.player = fake.player(active_date=active_date)
@@ -79,12 +79,13 @@ class SquadPlayer:
     def base_player(self) -> BasePlayer:
         """Return a `BasePlayer` object corresponding to this `SquadPlayer`.
 
-        :returns: The `BasePlayer` corresponding to this `SquadPlayer`
-        :rtype: :class:`ilc_models.BasePlayer`
+        Returns:
+            BasePlayer: The `BasePlayer` corresponding to this `SquadPlayer`
         """
         return self.player.base_player
 
     def __str__(self) -> str:
+        """Return the shirt number and name, marking goalkeepers."""
         return (
             f"{self.shirt_number}. {self.player.name}{' (GK)' if self.keeper else ''}"
         )
@@ -93,32 +94,40 @@ class SquadPlayer:
 class Team:
     """Randomly generated team.
 
-    :param active_date: Date on which all players in this team's squad are active - this will
-                        be used to generate reasonable dates of birth (default=None)
-    :type active_date: :class:`datetime.date`
+    Args:
+        active_date (datetime.date | None): Date on which all players in this team's
+            squad are active - this will be used to generate reasonable dates of birth.
+            Defaults to None.
     """
 
     def __init__(self, active_date: datetime.date | None = None):
+        """Initialize the team with a name, squad and strength."""
         self.name = fake.unique.team_name()
         self.squad = fake.squad(active_date=active_date)
         self.strength = random.randint(0, 5)
 
     def __str__(self) -> str:  # pragma: no cover
+        """Return the team name."""
         return self.name
 
 
 class ILCProvider(BaseProvider):
-    """Faker provider for ILC data models"""
+    """Faker provider for ILC data models."""
 
     def __init__(self, generator: Generator) -> None:
+        """Initialize the provider.
+
+        Args:
+            generator (Generator): Faker generator this provider is attached to.
+        """
         super().__init__(generator)
         self.player_ids: set[int] = set()
 
     def player_id(self) -> int:
-        """Returns a random player ID.
+        """Return a random player ID.
 
-        :returns: Random player ID between 1 and 999,999
-        :rtype: int
+        Returns:
+            int: Random player ID between 1 and 999,999
         """
         while True:
             pid = random.randint(1, 999_999)
@@ -130,10 +139,10 @@ class ILCProvider(BaseProvider):
                 return pid
 
     def base_player(self) -> BasePlayer:
-        """Returns a randomly generated BasePlayer.
+        """Return a randomly generated BasePlayer.
 
-        :returns: BasePlayer with random name and ID
-        :rtype: :class:`ilc_models.BasePlayer`
+        Returns:
+            BasePlayer: BasePlayer with random name and ID
         """
         return BasePlayer(
             player_id=fake.unique.player_id(),
@@ -141,17 +150,20 @@ class ILCProvider(BaseProvider):
         )
 
     def player(self, active_date: datetime.date | None = None) -> Player:
-        """Returns a randomly generated Player.
+        """Return a randomly generated Player.
 
         If ``active_date`` is supplied the player's DOB will be generated
         so that they are between 17 and 35 on ``active_date``,
         otherwise they will be between 17 and 35 on today's date.
 
-        :param active_date: Date on which this player is active - this will
-                            be used to generate a reasonable date of birth (default=None)
-        :type active_date: :class:`datetime.date`
-        :returns: Player with randomly generated attributes
-        :rtype: :class:`ilc_models.Player`
+        Args:
+            active_date (datetime.date | None): Date on which this player is active -
+                this will be used to generate a reasonable date of birth. Defaults to
+                None.
+
+
+        Returns:
+            Player: Player with randomly generated attributes
         """
         player_id = fake.unique.player_id()
         first_name = fake.first_name_male()
@@ -181,17 +193,18 @@ class ILCProvider(BaseProvider):
     def squad(
         self, size=25, keepers=3, active_date: datetime.date | None = None
     ) -> list[SquadPlayer]:
-        """Returns a randomly generated list of SquadPlayers.
+        """Return a randomly generated list of SquadPlayers.
 
-        :param size: Number of players to generate (default=25)
-        :type size: int
-        :param keepers: Number of goalkeepers to include (default=3)
-        :type keepers: int
-        :param active_date: Date on which all players in this squad are active - this will
-                            be used to generate reasonable dates of birth (default=None)
-        :type active_date: :class:`datetime.date`
-        :returns: List of randomly generated squad players
-        :rtype: list[:class:`SquadPlayer`]
+        Args:
+            size (int): Number of players to generate. Defaults to 25.
+            keepers (int): Number of goalkeepers to include. Defaults to 3.
+            active_date (datetime.date | None): Date on which all players in this squad
+                are active - this will be used to generate reasonable dates of birth.
+                Defaults to None.
+
+
+        Returns:
+            list[SquadPlayer]: List of randomly generated squad players
         """
         # Shirt numbers - prefer 2-11, then 12-19 then 20-39
         shirts = list(range(2, 40))
@@ -218,17 +231,20 @@ class ILCProvider(BaseProvider):
         return squad
 
     def lineup(self, squad: list[SquadPlayer] | None = None) -> Lineup:
-        """Returns a randomly generated Lineup.
+        """Return a randomly generated Lineup.
 
         Creates a lineup with 11 starting players and 7 substitutes.
 
         If ``squad`` is supplied the players will be chosen from the squad,
         otherwise a new set of players will be randomly generated.
 
-        :param squad: Squad players to choose from (default=None)
-        :type squad: list[:class:`SquadPlayer`]
-        :returns: Lineup with randomly generated players
-        :rtype: :class:`ilc_models.Lineup`
+        Args:
+            squad (list[SquadPlayer] | None): Squad players to choose from. Defaults to
+                None.
+
+
+        Returns:
+            Lineup: Lineup with randomly generated players
         """
         # Get random squad
         if squad is None:
@@ -265,25 +281,28 @@ class ILCProvider(BaseProvider):
         home_squad: list[SquadPlayer] | None = None,
         away_squad: list[SquadPlayer] | None = None,
     ) -> Lineups:
-        """Returns two randomly generated lineups.
+        """Return two randomly generated lineups.
 
         If ``home_squad`` or ``away_squad`` is supplied the players will be chosen from the squads,
         otherwise new sets of players will be randomly generated.
 
-        :param home_squad: Squad players for the home team (default=None)
-        :type home_squad: list[:class:`SquadPlayer`]
-        :param away_squad: Squad players for the home team (default=None)
-        :type away_squad: list[:class:`SquadPlayer`]
-        :returns: Lineups with randomly generated players
-        :rtype: :class:`ilc_models.Lineups`
+        Args:
+            home_squad (list[SquadPlayer] | None): Squad players for the home team.
+                Defaults to None.
+            away_squad (list[SquadPlayer] | None): Squad players for the away team.
+                Defaults to None.
+
+
+        Returns:
+            Lineups: Lineups with randomly generated players
         """
         return Lineups(home=self.lineup(home_squad), away=self.lineup(away_squad))
 
     def team_suffix(self) -> str:
-        """Returns a team suffix (United, City, etc.).
+        """Return a team suffix (United, City, etc.).
 
-        :returns: Randomly selected suffix
-        :rtype: str
+        Returns:
+            str: Randomly selected suffix
         """
         suffixes = (
             "Albion",
@@ -310,29 +329,32 @@ class ILCProvider(BaseProvider):
         return random.choice(suffixes)
 
     def team_name(self) -> str:
-        """Returns a randomly generated team name.
+        """Return a randomly generated team name.
 
-        :returns: Team name
-        :rtype: str
+        Returns:
+            str: Team name
         """
         return f"{fake.city()} {fake.team_suffix()}".rstrip()
 
     def team(self, active_date: datetime.date | None = None) -> Team:
-        """Returns a randomly generated team.
+        """Return a randomly generated team.
 
-        :param active_date: Date on which all players in this team's squad are active - this will
-                            be used to generate reasonable dates of birth (default=None)
-        :type active_date: :class:`datetime.date`
-        :returns: Randomly generated team, populated with a squad of players
-        :rtype: :class:`Team`
+        Args:
+            active_date (datetime.date | None): Date on which all players in this team's
+                squad are active - this will be used to generate reasonable dates of
+                birth. Defaults to None.
+
+
+        Returns:
+            Team: Randomly generated team, populated with a squad of players
         """
         return Team(active_date=active_date)
 
     def match_id(self) -> int:
-        """Returns a random match ID.
+        """Return a random match ID.
 
-        :returns: Random match ID between 1 and 999,999
-        :rtype: int
+        Returns:
+            int: Random match ID between 1 and 999,999
         """
         return random.randint(1, 999_999)
 
@@ -344,24 +366,22 @@ class ILCProvider(BaseProvider):
         away: Team | None = None,
         status: str | None = None,
     ) -> Match:
-        """Returns a randomly generated match.
+        """Return a randomly generated match.
 
         Takes a number of optional parameters which if supplied
         will be added to the match. Any parameters not
         supplied will be randomly generated.
 
-        :param kickoff: Kickoff time (default=None)
-        :type kickoff: :class:`datetime.datetime`
-        :param round: Round this match is part of (default=None)
-        :type round: str
-        :param home: Home team (default=None)
-        :type home: :class:`Team`
-        :param away: Away team (default=None)
-        :type away: :class:`Team`
-        :param status: Match status (default=None)
-        :type status: str
-        :returns: Randomly generated match
-        :rtype: :class:`ilc_models.Match`
+        Args:
+            kickoff (datetime.datetime | None): Kickoff time. Defaults to None.
+            round (str | None): Round this match is part of. Defaults to None.
+            home (Team | None): Home team. Defaults to None.
+            away (Team | None): Away team. Defaults to None.
+            status (str | None): Match status. Defaults to None.
+
+
+        Returns:
+            Match: Randomly generated match
         """
         # Kickoff time if not provided
         if kickoff is None:
@@ -425,7 +445,7 @@ class ILCProvider(BaseProvider):
 
             # Substitutions
             for team, lineup in zip(
-                (home, away), (match.lineups.home, match.lineups.away)
+                (home, away), (match.lineups.home, match.lineups.away), strict=True
             ):
                 # Exclude goalkeepers from substitutions
                 keepers = [p.base_player for p in team.squad if p.keeper]
@@ -461,7 +481,7 @@ class ILCProvider(BaseProvider):
 
             # Cards
             for team, lineup in zip(
-                (home, away), (match.lineups.home, match.lineups.away)
+                (home, away), (match.lineups.home, match.lineups.away), strict=True
             ):
                 # 0-4 cards per team per match
                 total_cards = random.choice(range(5))
@@ -537,6 +557,7 @@ class ILCProvider(BaseProvider):
                 (match.lineups.home, match.lineups.away),
                 (match.lineups.away, match.lineups.home),
                 (match.score.home, match.score.away),
+                strict=True,
             ):
                 for _ in range(goal_count):
                     time = self.event_time()
@@ -570,22 +591,24 @@ class ILCProvider(BaseProvider):
         possible_exits: list[BasePlayer] | None = None,
         possible_entries: list[BasePlayer] | None = None,
     ) -> list[Substitution]:
-        """Returns a randomly generated list of substitutions made within a single window.
+        """Return a randomly generated list of substitutions made within a single window.
 
         Any parameters not supplied will be randomly generated.
 
-        :param team: Name of the team making this substitution (default=None)
-        :type team: str
-        :param sub_count: Number of substitutions to be made in this window (default=0)
-        :type sub_count: str
-        :param time: Time of the substitutions (default=None)
-        :type time: :class:`ilc_models.EventTime`
-        :param possible_exits: Players who can come off the field (default=None)
-        :type possible_exits: list[:class:`ilc_models.BasePlayer`]
-        :param possible_entries: Players who can come on the field (default=None)
-        :type possible_entries: list[:class:`ilc_models.BasePlayer`]
-        :returns: Randomly generated substitutions
-        :rtype: list[:class:`ilc_models.Substitution`]
+        Args:
+            team (str | None): Name of the team making this substitution. Defaults to
+                None.
+            sub_count (int): Number of substitutions to be made in this window. Defaults
+                to 0.
+            time (EventTime | None): Time of the substitutions. Defaults to None.
+            possible_exits (list[BasePlayer] | None): Players who can come off the
+                field. Defaults to None.
+            possible_entries (list[BasePlayer] | None): Players who can come on the
+                field. Defaults to None.
+
+
+        Returns:
+            list[Substitution]: Randomly generated substitutions
         """
         if team is None:
             team = self.team_name()
@@ -629,20 +652,22 @@ class ILCProvider(BaseProvider):
         possible_exits: list[BasePlayer] | None = None,
         possible_entries: list[BasePlayer] | None = None,
     ) -> Substitution:
-        """Returns a randomly generated substitution.
+        """Return a randomly generated substitution.
 
         Any parameters not supplied will be randomly generated.
 
-        :param team: Name of the team making this substitution (default=None)
-        :type team: str
-        :param time: Time of the substitution (default=None)
-        :type time: :class:`EventTime`
-        :param possible_exits: Players who can come off the field (default=None)
-        :type possible_exits: list[:class:`ilc_models.BasePlayer`]
-        :param possible_entries: Players who can come on the field (default=None)
-        :type possible_entries: list[:class:`ilc_models.BasePlayer`]
-        :returns: Randomly generated substitution
-        :rtype: :class:`ilc_models.Substitution`
+        Args:
+            team (str | None): Name of the team making this substitution. Defaults to
+                None.
+            time (EventTime | None): Time of the substitution. Defaults to None.
+            possible_exits (list[BasePlayer] | None): Players who can come off the
+                field. Defaults to None.
+            possible_entries (list[BasePlayer] | None): Players who can come on the
+                field. Defaults to None.
+
+
+        Returns:
+            Substitution: Randomly generated substitution
         """
         if team is None:
             team = self.team_name()
@@ -670,18 +695,19 @@ class ILCProvider(BaseProvider):
         time: EventTime | None = None,
         players: list[BasePlayer] | None = None,
     ) -> Card:
-        """Returns a randomly generated red or yellow card.
+        """Return a randomly generated red or yellow card.
 
         Any parameters not supplied will be randomly generated.
 
-        :param team: Name of the team receiving this card (default=None)
-        :type team: str
-        :param time: Time of the card (default=None)
-        :type time: :class:`ilc_models.EventTime`
-        :param players: Players who can receive the card (default=None)
-        :type players: list[BasePlayer]
-        :returns: Randomly generated card event
-        :rtype: :class:`ilc_models.Card`
+        Args:
+            team (str | None): Name of the team receiving this card. Defaults to None.
+            time (EventTime | None): Time of the card. Defaults to None.
+            players (list[BasePlayer] | None): Players who can receive the card.
+                Defaults to None.
+
+
+        Returns:
+            Card: Randomly generated card event
         """
         if team is None:  # pragma: no cover
             team = self.team_name()
@@ -705,23 +731,23 @@ class ILCProvider(BaseProvider):
         goal_type: Literal["N", "O", "P"] | None = None,
         players: tuple[list[BasePlayer], list[BasePlayer]] | None = None,
     ) -> Goal:
-        """Returns a randomly generated goal.
+        """Return a randomly generated goal.
 
         Any parameters not supplied will be randomly generated.
 
-        :param team: Team scoring this goal (default=None)
-        :type team: :class:`Team`
-        :param time: Time of the goal (default=None)
-        :type time: :class:`ilc_models.EventTime`
-        :param goal_type: One of 'N' (normal goal), 'O' (own goal), 'P' (penalty) (default=None)
-        :type goal_type: str
-        :param players: Players who can score the goal as a two-item tuple,
-                        the scoring team's players are the first item and
-                        the opposing team's players (for own goals) are the
-                        second item (default=None)
-        :type players: tuple[list[:class:`ilc_models.BasePlayer`], list[:class:`ilc_models.BasePlayer`]]
-        :returns: Randomly generated goal event
-        :rtype: :class:`ilc_models.Goal`
+        Args:
+            team (Team | None): Team scoring this goal. Defaults to None.
+            time (EventTime | None): Time of the goal. Defaults to None.
+            goal_type (str | None): One of 'N' (normal goal), 'O' (own goal), 'P'
+                (penalty). Defaults to None.
+            players (tuple[list[BasePlayer], list[BasePlayer]] | None): Players who can
+                score the goal as a two-item tuple, the scoring team's players are the
+                first item and the opposing team's players (for own goals) are the
+                second item. Defaults to None.
+
+
+        Returns:
+            Goal: Randomly generated goal event
         """
         if team is None:  # pragma: no cover
             team = self.team()
@@ -768,17 +794,20 @@ class ILCProvider(BaseProvider):
         return Goal(team=team.name, time=time, goal_type=goal_type, scorer=scorer)
 
     def event_time(self, first_half_weighting=50) -> EventTime:
-        """Returns a randomly generated event time.
+        """Return a randomly generated event time.
 
         The ``first_half_weighting`` parameter controls how likely it is
         that the time will be in the first half. A value of 50 means
         either half will have equal probability; higher values increase
         the likelihood of a first half time.
 
-        :param first_half_weighting: Weight / 100 to give to a time in the first half
-        :type first_half_weighting: int
-        :returns: Randomly generated event time
-        :rtype: :class:`ilc_models.EventTime`
+        Args:
+            first_half_weighting (int): Weight / 100 to give to a time in the first
+                half.
+
+
+        Returns:
+            EventTime: Randomly generated event time
         """
         half = 0 if random.randint(1, 100) <= first_half_weighting else 1
         time = random.randint(1, 50)
@@ -787,7 +816,7 @@ class ILCProvider(BaseProvider):
         return EventTime(minutes=minutes, plus=plus)
 
     def kickoff(self, anchor: datetime.date | None = None) -> datetime.datetime:
-        """Returns a randomly generated kickoff time.
+        """Return a randomly generated kickoff time.
 
         If ``anchor`` is provided the kickoff will be on that day at 15:00 or 17:30,
         the following day at 15:00, or at 19:45 on d-1.
@@ -796,10 +825,13 @@ class ILCProvider(BaseProvider):
 
         If ``anchor`` is not provided the kickoff will be a random Saturday at 3pm.
 
-        :param anchor: Saturday to anchor this gameweek (default=None)
-        :type anchor: :class:`datetime.date`
-        :returns: Randomly generated kickoff date and time
-        :rtype: :class:`datetime.datetime`
+        Args:
+            anchor (datetime.date | None): Saturday to anchor this gameweek. Defaults to
+                None.
+
+
+        Returns:
+            datetime.datetime: Randomly generated kickoff date and time
         """
         # No anchor supplied - generate a random Saturday 3pm kickoff time
         if anchor is None:
@@ -829,16 +861,17 @@ class ILCProvider(BaseProvider):
         return dt + delta
 
     def table_row(self, matches: int = 0, team: Team | None = None) -> TableRow:
-        """Returns a randomly generated league table row.
+        """Return a randomly generated league table row.
 
         Any parameters not supplied will be randomly generated.
 
-        :param matches: Matches played (default=0)
-        :type matches: int
-        :param team: Team (default=None)
-        :type team: :class:`Team`
-        :returns: Randomly generated row from a league table
-        :rtype: :class:`ilc_models.TableRow`
+        Args:
+            matches (int): Matches played. Defaults to 0.
+            team (Team | None): Team. Defaults to None.
+
+
+        Returns:
+            TableRow: Randomly generated row from a league table
         """
 
         def weighted_results(matches: int, strength: int) -> int:
@@ -846,12 +879,13 @@ class ILCProvider(BaseProvider):
 
             Higher strength will tend towards a higher return value.
 
-            :param matches: Number of matches to play
-            :type matches: int
-            :param strength: Strength factor (0-5)
-            :type strength: int
-            :returns: Weighted random number of matches
-            :rtype: int
+            Args:
+                matches (int): Number of matches to play.
+                strength (int): Strength factor (0-5).
+
+
+            Returns:
+                int: Weighted random number of matches
             """
             matches_per_step = max((matches + 1) // 5, 1)
             steps = [n // matches_per_step for n in range(matches + 1)]
@@ -895,18 +929,18 @@ class ILCProvider(BaseProvider):
         )
 
     def league_id(self) -> int:
-        """Returns a random league ID.
+        """Return a random league ID.
 
-        :returns: Random match ID between 1 and 999
-        :rtype: int
+        Returns:
+            int: Random match ID between 1 and 999
         """
         return random.randint(1, 999)
 
     def league_name(self) -> str:
-        """Returns a randomly selected league name.
+        """Return a randomly selected league name.
 
-        :returns: Random league name
-        :rtype: str
+        Returns:
+            str: Random league name
         """
         names = (
             "Premiership",
@@ -927,7 +961,7 @@ class ILCProvider(BaseProvider):
         split_mode: Literal["auto", "none", "fixed"] = "auto",
         games_before_split: int = 3,
     ) -> League:
-        """Returns a randomly generated league.
+        """Return a randomly generated league.
 
         If ``matches`` is False no matches will be added to the league.
 
@@ -939,22 +973,21 @@ class ILCProvider(BaseProvider):
 
         Any other parameters not supplied will be randomly generated.
 
-        :param team_count: Number of teams in this league (default=0)
-        :type team_count: int
-        :param matches: Whether matches should be added to this league (default=True)
-        :type matches: bool
-        :param games_per_opponent: Number of games to play against each other team
-                                   (including post-split games) (default=0)
-        :type games_per_opponent: int
-        :param split_mode: One of 'none' (no split), 'auto' (auto-generated split point)
-                           or 'fixed' (use split point provided) (default='auto')
-        :type split_mode: str
-        :param games_before_split: Number of matches to play against each opponent before
-                                   the league splits in 'fixed' split mode, ignored if
-                                   `split_mode` is 'none' or 'auto' (default=3)
-        :type games_before_split: int
-        :returns: Randomly generated league
-        :rtype: :class:`ilc_models.League`
+        Args:
+            team_count (int): Number of teams in this league. Defaults to 0.
+            matches (bool): Whether matches should be added to this league. Defaults to
+                True.
+            games_per_opponent (int): Number of games to play against each other team
+                (including post-split games). Defaults to 0.
+            split_mode (str): One of 'none' (no split), 'auto' (auto-generated split
+                point) or 'fixed' (use split point provided). Defaults to 'auto'.
+            games_before_split (int): Number of matches to play against each opponent
+                before the league splits in 'fixed' split mode, ignored if `split_mode`
+                is 'none' or 'auto'. Defaults to 3.
+
+
+        Returns:
+            League: Randomly generated league
         """
         # Basic info
         league_id = fake.unique.league_id()
@@ -1109,7 +1142,7 @@ class ILCProvider(BaseProvider):
 
             split_rounds = [s[:] for s in split_schedule]
             for _ in range(1, games_after_split):
-                for schedule, rounds in zip(split_schedule, split_rounds):
+                for schedule, rounds in zip(split_schedule, split_rounds, strict=True):
                     inv_s = invert_schedule(schedule)
                     rounds += inv_s
 
@@ -1142,10 +1175,12 @@ def match_schedule(teams: list[Team]) -> list[list[tuple[Team, Team]]]:
     Returns a list of matchdays, each containing a list of fixtures
     in the form of (home, away) tuples.
 
-    :param teams: Teams to schedule
-    :type teams: list[:class:`Team`]
-    :returns: Schedule of matches
-    :rtype: list[list[tuple[:class:`Team`, :class:`Team`]]]
+    Args:
+        teams (list[Team]): Teams to schedule.
+
+
+    Returns:
+        list[list[tuple[Team, Team]]]: Schedule of matches
     """
     team_count = len(teams)
 
@@ -1167,10 +1202,8 @@ def match_schedule(teams: list[Team]) -> list[list[tuple[Team, Team]]]:
                     home = team_count - 1
 
             # Skip non-existent team in odd-numbered scenario
-            try:
+            with contextlib.suppress(IndexError):
                 matches.append((teams[home], teams[away]))
-            except IndexError:
-                pass
 
         rounds.append(matches)
 
@@ -1184,10 +1217,12 @@ def invert_schedule(
 
     Also shuffles the match days so they reoccur in a randomized order.
 
-    :param schedule: Schedule to invert
-    :type schedule: list[list[tuple[:class:`Team`, :class:`Team`]]]
-    :returns: Inverted schedule
-    :rtype: list[list[tuple[:class:`Team`, :class:`Team`]]]
+    Args:
+        schedule (list[list[tuple[Team, Team]]]): Schedule to invert.
+
+
+    Returns:
+        list[list[tuple[Team, Team]]]: Inverted schedule
     """
     rounds = []
     for round in schedule:
@@ -1199,16 +1234,16 @@ def invert_schedule(
 def players_on(
     team: str, starting: list[BasePlayer], events: list[Event], time: EventTime
 ) -> list[BasePlayer]:
-    """Returns the list of players on the pitch at a given time.
+    """Return the list of players on the pitch at a given time.
 
-    :param team: Team name
-    :type team: str
-    :param starting: Starting XI
-    :type starting: list[:class:`ilc_models.BasePlayer`]
-    :param events: Match events
-    :type events: list[:class:`ilc_models.Event`]
-    :param time: Time to check
-    :type time: :class:`ilc_models.EventTime`
+    Args:
+        team (str): Team name.
+        starting (list[BasePlayer]): Starting XI.
+        events (list[Event]): Match events.
+        time (EventTime): Time to check.
+
+    Returns:
+        list[BasePlayer]: Players on the pitch at ``time``.
     """
     # Starting lineup
     players = starting[:]
@@ -1236,14 +1271,15 @@ def _unique_choices(
 ) -> list[Any]:
     """Return a `k` sized list of elements chosen from the `population` without replacement.
 
-    :param population: Population to select elements from
-    :type population: MutableSequence[Any]
-    :param weights: If specified, selections are made according to the relative weights (default=None)
-    :type weights: MutableSequence[int|float]
-    :param k: Number of selections to return (default=1)
-    :type k: int
-    :returns: Selected elements
-    :rtype: list[Any]
+    Args:
+        population (MutableSequence[Any]): Population to select elements from.
+        weights (list[int] | None): If specified, selections are made
+            according to the relative weights. Defaults to None.
+        k (int): Number of selections to return. Defaults to 1.
+
+
+    Returns:
+        list[Any]: Selected elements
     """
     _population = population[:]
     _weights = weights[:] if weights is not None else None

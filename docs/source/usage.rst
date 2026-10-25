@@ -30,3 +30,20 @@ Use as you would any other fixture::
 
     def test_fake_league(fake_league):
         assert fake_league.matches
+
+
+Users
+-----
+
+Fake users can be generated too. Any of ``email``, ``password``,
+``username`` and ``status`` can be supplied; the rest are generated.
+Generated emails (and the usernames derived from them) are unique::
+
+    user = ilc_fake.user(status="active")
+    assert user.username == user.email.split("@")[0]
+
+Hashing a password with Argon2 is deliberately slow. When generating many
+users, hash once and reuse the hash::
+
+    password_hash = ilc_fake.user().password_hash
+    users = [ilc_fake.user(password_hash=password_hash) for _ in range(100)]

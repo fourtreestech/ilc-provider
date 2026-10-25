@@ -476,6 +476,7 @@ class ILCProvider(BaseProvider):
                         possible_exits.remove(sub.player_off)
 
                     subs += window_subs
+                    windows_used += 1
 
                 match.substitutions.extend(subs[:total_subs])
 

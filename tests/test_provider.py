@@ -8,6 +8,7 @@ from collections import Counter
 from ilc_models import BasePlayer, Card, EventTime, Substitution
 
 from ilc_provider import (
+    ILCProvider,
     SquadPlayer,
     Team,
     _unique_choices,
@@ -264,6 +265,25 @@ class TestMatch:
         # Goal events should match the score
         assert home == match.score.home
         assert away == match.score.away
+
+    def test_at_most_three_sub_windows_per_team(self, monkeypatch):
+        # Make unforced windows as small as possible so a limit breach is likely
+        original = ILCProvider.sub_window
+
+        def one_sub_window(self, *args, sub_count=0, **kwargs):
+            return original(self, *args, sub_count=sub_count or 1, **kwargs)
+
+        monkeypatch.setattr(ILCProvider, "sub_window", one_sub_window)
+
+        for _ in range(50):
+            match = fake.match()
+            for team in (match.teams.home, match.teams.away):
+                times = {
+                    (s.time.minutes, s.time.plus)
+                    for s in match.substitutions
+                    if s.team == team
+                }
+                assert len(times) <= 3
 
 
 class TestEvents:

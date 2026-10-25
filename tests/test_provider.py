@@ -305,6 +305,22 @@ class TestMatch:
                 }
                 assert len(times) <= 3
 
+    def test_sent_off_players_are_not_carded_again(self, monkeypatch):
+        sent_off = set()
+
+        def red_card(self, team, time, players):
+            player = players[0]
+            assert (team, player.player_id) not in sent_off
+            sent_off.add((team, player.player_id))
+            return Card(team=team, time=time, color="R", player=player)
+
+        monkeypatch.setattr(ILCProvider, "card", red_card)
+
+        for _ in range(20):
+            fake.match()
+
+        assert sent_off
+
 
 class TestEvents:
     def test_substitution_uses_correct_players(self):

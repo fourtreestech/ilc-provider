@@ -483,19 +483,20 @@ class ILCProvider(BaseProvider):
                         if card.color == "R":
                             sent_off.append(card.player)
 
-                    # Get players currently on the pitch
-                    players = players_on(
-                        team.name,
-                        [p[1] for p in lineup.starting],
-                        match.events(),
-                        time,
-                    )
+                    # Get players currently on the pitch who haven't been sent off
+                    players = [
+                        p
+                        for p in players_on(
+                            team.name,
+                            [p[1] for p in lineup.starting],
+                            match.events(),
+                            time,
+                        )
+                        if p not in sent_off
+                    ]
 
                     # Make card
-                    while True:
-                        new_card = self.card(team.name, time, players)
-                        if new_card.player not in sent_off:
-                            break
+                    new_card = self.card(team.name, time, players)
                     new_cards = [new_card]
 
                     # Check if this player has already received a yellow card

@@ -10,7 +10,7 @@ requires-python = ">=3.12"
 license = "MIT"
 dependencies = [
     "faker>=37.0.2",
-    "ilc-models>=0.1.1",
+    "ilc-models>=0.3.1",
 ]
 classifiers = [
   "Development Status :: 4 - Beta",
@@ -70,7 +70,6 @@ commands = [["pytest"]]
 
 [dependency-groups]
 dev = [
-    "ilc-models==0.2.1",
     "mypy>=1.15.0",
     "pytest>=8.3.5",
     "pytest-cov>=6.0.0",

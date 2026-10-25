@@ -256,9 +256,9 @@ class TestMatch:
         # Count the goal events for each team
         for goal in match.goals:
             assert goal.team in (match.teams.home, match.teams.away)
-            if goal.team == match.teams.home:
+            if goal.team == match.teams.home:  # pragma: no cover
                 home += 1
-            else:
+            else:  # pragma: no cover
                 away += 1
 
         # Goal events should match the score

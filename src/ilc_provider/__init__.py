@@ -98,6 +98,13 @@ class Team:
         active_date (datetime.date | None): Date on which all players in this team's
             squad are active - this will be used to generate reasonable dates of birth.
             Defaults to None.
+
+    Attributes:
+        name (str): Unique team name.
+        squad (list[SquadPlayer]): The team's squad.
+        strength (int): Team strength from 0 to 5, higher being stronger. Used by
+            :meth:`~ILCProvider.match` to weight the score and by
+            :meth:`~ILCProvider.table_row` to weight wins and draws.
     """
 
     def __init__(self, active_date: datetime.date | None = None):

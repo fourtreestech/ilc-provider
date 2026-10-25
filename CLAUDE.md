@@ -19,7 +19,7 @@ Tasks are defined in the `justfile`:
 - `just bump` — bump patch version with bumpver. The version lives in `pyproject.toml`, `README.md` badge, `src/ilc_provider/__init__.py` (`__version__`) and `docs/source/conf.py`; bumpver keeps them in sync, so don't edit them by hand.
 - `just upgrade` — upgrades the lockfile, re-exports `docs/requirements.txt` (used by Read the Docs) and runs `tox`
 
-Tests run with `pytest-randomly`, so test order is shuffled; tests must not depend on order or on a particular random seed.
+Tests run with `pytest-randomly`, so test order is shuffled; tests must not depend on order or on a particular random seed. For the same reason, branches that only some seeds reach are marked `# pragma: no cover` so the coverage figure doesn't vary with the seed; keep that convention.
 
 ## Architecture
 

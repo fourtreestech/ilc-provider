@@ -6,14 +6,15 @@ import random
 from collections import Counter
 
 from ilc_models import BasePlayer, Card, EventTime, Substitution
+
 from ilc_provider import (
+    SquadPlayer,
+    Team,
     _unique_choices,
     fake,
     invert_schedule,
     match_schedule,
     players_on,
-    SquadPlayer,
-    Team,
 )
 
 

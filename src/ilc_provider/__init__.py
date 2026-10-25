@@ -18,11 +18,10 @@ import datetime
 import random
 from collections.abc import MutableSequence
 from operator import attrgetter
-from typing import Optional, Any, Literal
+from typing import Any, Literal
 
-from faker import Faker
+from faker import Faker, Generator
 from faker.providers import BaseProvider
-
 from ilc_models import (
     BasePlayer,
     Card,
@@ -68,7 +67,7 @@ class SquadPlayer:
         self,
         shirt_number: int,
         keeper=False,
-        active_date: Optional[datetime.date] = None,
+        active_date: datetime.date | None = None,
     ):
         self.shirt_number = shirt_number
         self.keeper = keeper
@@ -99,7 +98,7 @@ class Team:
     :type active_date: :class:`datetime.date`
     """
 
-    def __init__(self, active_date: Optional[datetime.date] = None):
+    def __init__(self, active_date: datetime.date | None = None):
         self.name = fake.unique.team_name()
         self.squad = fake.squad(active_date=active_date)
         self.strength = random.randint(0, 5)
@@ -111,7 +110,9 @@ class Team:
 class ILCProvider(BaseProvider):
     """Faker provider for ILC data models"""
 
-    player_ids: set[int] = set()
+    def __init__(self, generator: Generator) -> None:
+        super().__init__(generator)
+        self.player_ids: set[int] = set()
 
     def player_id(self) -> int:
         """Returns a random player ID.
@@ -139,7 +140,7 @@ class ILCProvider(BaseProvider):
             name=f"{fake.first_name()[0]}. {fake.last_name()}",
         )
 
-    def player(self, active_date: Optional[datetime.date] = None) -> Player:
+    def player(self, active_date: datetime.date | None = None) -> Player:
         """Returns a randomly generated Player.
 
         If ``active_date`` is supplied the player's DOB will be generated
@@ -178,7 +179,7 @@ class ILCProvider(BaseProvider):
         )
 
     def squad(
-        self, size=25, keepers=3, active_date: Optional[datetime.date] = None
+        self, size=25, keepers=3, active_date: datetime.date | None = None
     ) -> list[SquadPlayer]:
         """Returns a randomly generated list of SquadPlayers.
 
@@ -216,7 +217,7 @@ class ILCProvider(BaseProvider):
 
         return squad
 
-    def lineup(self, squad: Optional[list[SquadPlayer]] = None) -> Lineup:
+    def lineup(self, squad: list[SquadPlayer] | None = None) -> Lineup:
         """Returns a randomly generated Lineup.
 
         Creates a lineup with 11 starting players and 7 substitutes.
@@ -237,7 +238,7 @@ class ILCProvider(BaseProvider):
         keepers = [p for p in squad if p.keeper]
         keeper_weights = [p.selection_weight for p in keepers]
         keeper1 = random.choices(keepers, weights=keeper_weights)[0]
-        keeper2 = [p for p in keepers if p != keeper1][0]
+        keeper2 = next(p for p in keepers if p != keeper1)
 
         # Get outfield players
         outfield = [p for p in squad if p not in keepers]
@@ -261,8 +262,8 @@ class ILCProvider(BaseProvider):
 
     def lineups(
         self,
-        home_squad: Optional[list[SquadPlayer]] = None,
-        away_squad: Optional[list[SquadPlayer]] = None,
+        home_squad: list[SquadPlayer] | None = None,
+        away_squad: list[SquadPlayer] | None = None,
     ) -> Lineups:
         """Returns two randomly generated lineups.
 
@@ -314,9 +315,9 @@ class ILCProvider(BaseProvider):
         :returns: Team name
         :rtype: str
         """
-        return " ".join((fake.city(), fake.team_suffix())).rstrip()
+        return f"{fake.city()} {fake.team_suffix()}".rstrip()
 
-    def team(self, active_date: Optional[datetime.date] = None) -> Team:
+    def team(self, active_date: datetime.date | None = None) -> Team:
         """Returns a randomly generated team.
 
         :param active_date: Date on which all players in this team's squad are active - this will
@@ -337,11 +338,11 @@ class ILCProvider(BaseProvider):
 
     def match(
         self,
-        kickoff: Optional[datetime.datetime] = None,
-        round: Optional[str] = None,
-        home: Optional[Team] = None,
-        away: Optional[Team] = None,
-        status: Optional[str] = None,
+        kickoff: datetime.datetime | None = None,
+        round: str | None = None,
+        home: Team | None = None,
+        away: Team | None = None,
+        status: str | None = None,
     ) -> Match:
         """Returns a randomly generated match.
 
@@ -563,11 +564,11 @@ class ILCProvider(BaseProvider):
 
     def sub_window(
         self,
-        team: Optional[str] = None,
+        team: str | None = None,
         sub_count: int = 0,
-        time: Optional[EventTime] = None,
-        possible_exits: Optional[list[BasePlayer]] = None,
-        possible_entries: Optional[list[BasePlayer]] = None,
+        time: EventTime | None = None,
+        possible_exits: list[BasePlayer] | None = None,
+        possible_entries: list[BasePlayer] | None = None,
     ) -> list[Substitution]:
         """Returns a randomly generated list of substitutions made within a single window.
 
@@ -623,10 +624,10 @@ class ILCProvider(BaseProvider):
 
     def substitution(
         self,
-        team: Optional[str] = None,
-        time: Optional[EventTime] = None,
-        possible_exits: Optional[list[BasePlayer]] = None,
-        possible_entries: Optional[list[BasePlayer]] = None,
+        team: str | None = None,
+        time: EventTime | None = None,
+        possible_exits: list[BasePlayer] | None = None,
+        possible_entries: list[BasePlayer] | None = None,
     ) -> Substitution:
         """Returns a randomly generated substitution.
 
@@ -665,9 +666,9 @@ class ILCProvider(BaseProvider):
 
     def card(
         self,
-        team: Optional[str] = None,
-        time: Optional[EventTime] = None,
-        players: Optional[list[BasePlayer]] = None,
+        team: str | None = None,
+        time: EventTime | None = None,
+        players: list[BasePlayer] | None = None,
     ) -> Card:
         """Returns a randomly generated red or yellow card.
 
@@ -699,10 +700,10 @@ class ILCProvider(BaseProvider):
 
     def goal(
         self,
-        team: Optional[Team] = None,
-        time: Optional[EventTime] = None,
-        goal_type: Optional[Literal["N", "O", "P"]] = None,
-        players: Optional[tuple[list[BasePlayer], list[BasePlayer]]] = None,
+        team: Team | None = None,
+        time: EventTime | None = None,
+        goal_type: Literal["N", "O", "P"] | None = None,
+        players: tuple[list[BasePlayer], list[BasePlayer]] | None = None,
     ) -> Goal:
         """Returns a randomly generated goal.
 
@@ -785,7 +786,7 @@ class ILCProvider(BaseProvider):
         plus = max(time - 45, 0)
         return EventTime(minutes=minutes, plus=plus)
 
-    def kickoff(self, anchor: Optional[datetime.date] = None) -> datetime.datetime:
+    def kickoff(self, anchor: datetime.date | None = None) -> datetime.datetime:
         """Returns a randomly generated kickoff time.
 
         If ``anchor`` is provided the kickoff will be on that day at 15:00 or 17:30,
@@ -827,7 +828,7 @@ class ILCProvider(BaseProvider):
         )
         return dt + delta
 
-    def table_row(self, matches: int = 0, team: Optional[Team] = None) -> TableRow:
+    def table_row(self, matches: int = 0, team: Team | None = None) -> TableRow:
         """Returns a randomly generated league table row.
 
         Any parameters not supplied will be randomly generated.
@@ -1231,7 +1232,7 @@ def players_on(
 
 
 def _unique_choices(
-    population: MutableSequence[Any], weights: Optional[list[int]] = None, k=1
+    population: MutableSequence[Any], weights: list[int] | None = None, k=1
 ) -> list[Any]:
     """Return a `k` sized list of elements chosen from the `population` without replacement.
 

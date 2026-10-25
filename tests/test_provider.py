@@ -462,6 +462,17 @@ class TestLeague:
             )
             assert weekend or midweek
 
+    @pytest.mark.parametrize(
+        ("year", "pick"),
+        [("2023", "date_start"), ("2024", "date_end")],
+    )
+    def test_start_is_first_match_in_league_year(self, monkeypatch, year, pick):
+        monkeypatch.setattr(fake, "year", lambda: year)
+        monkeypatch.setattr(fake, "date_between_dates", lambda **kw: kw[pick])
+        league = fake.league(team_count=4, games_per_opponent=2)
+        assert league.start == league.matches()[0].date.isoformat()
+        assert int(league.start[:4]) == league.year
+
     def test_split_mode_none(self):
         league = fake.league(team_count=8, games_per_opponent=4, split_mode="none")
         table = league.table()

@@ -1023,11 +1023,11 @@ class ILCProvider(BaseProvider):
 
         # Start and end dates
         start_date = fake.date_between_dates(
-            date_start=datetime.date(year, 1, 1), date_end=datetime.date(year, 12, 31)
+            date_start=datetime.date(year, 1, 2), date_end=datetime.date(year, 12, 25)
         )
 
-        # Make sure we start on a Saturday
-        start_date += datetime.timedelta(days=5 - start_date.weekday())
+        # Make sure we start on a Saturday, without leaving the year
+        start_date += datetime.timedelta(days=(5 - start_date.weekday()) % 7)
         end_date = start_date + datetime.timedelta(
             days=7 * 38
         )  # Will adjust this later based on actual game dates
@@ -1192,8 +1192,10 @@ class ILCProvider(BaseProvider):
                     ]
                     kickoff += datetime.timedelta(days=7)
 
-        # Adjust league end date to reflect final match
-        league.end = league.matches()[-1].date.isoformat()
+        # Adjust league start and end dates to reflect first and final matches
+        matches_played = league.matches()
+        league.start = matches_played[0].date.isoformat()
+        league.end = matches_played[-1].date.isoformat()
 
         return league
 

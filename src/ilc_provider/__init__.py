@@ -816,7 +816,9 @@ class ILCProvider(BaseProvider):
         plus = max(time - 45, 0)
         return EventTime(minutes=minutes, plus=plus)
 
-    def kickoff(self, anchor: datetime.date | None = None) -> datetime.datetime:
+    def kickoff(
+        self, anchor: datetime.date | None = None, midweek: bool = False
+    ) -> datetime.datetime:
         """Return a randomly generated kickoff time.
 
         If ``anchor`` is provided the kickoff will be on that day at 15:00 or 17:30,
@@ -824,11 +826,17 @@ class ILCProvider(BaseProvider):
         This simulates a gameweek being played across a Friday to Sunday,
         where ``anchor`` is the Saturday.
 
+        If ``midweek`` is true the gameweek is played across a Tuesday and Wednesday
+        instead, where ``anchor`` is the Tuesday: the kickoff will be at 19:45 on
+        either day.
+
         If ``anchor`` is not provided the kickoff will be a random Saturday at 3pm.
 
         Args:
-            anchor (datetime.date | None): Saturday to anchor this gameweek. Defaults to
-                None.
+            anchor (datetime.date | None): Saturday to anchor this gameweek, or
+                Tuesday if ``midweek`` is true. Defaults to None.
+            midweek (bool): Whether the gameweek is played midweek. Only used if
+                ``anchor`` is provided. Defaults to False.
 
 
         Returns:
@@ -845,14 +853,22 @@ class ILCProvider(BaseProvider):
             )
 
         # Anchor supplied - possible timedeltas
-        deltas = (
-            datetime.timedelta(hours=-4, minutes=-15),  # Fri 19:45
-            datetime.timedelta(hours=15),  # Sat 15:00
-            datetime.timedelta(hours=17, minutes=30),  # Sat 17:30
-            datetime.timedelta(days=1, hours=15),  # Sun 15:00
-        )
-        # Sat 3pm is most likely
-        weights = (2, 4, 2, 1)
+        if midweek:
+            deltas = (
+                datetime.timedelta(hours=19, minutes=45),  # Tue 19:45
+                datetime.timedelta(days=1, hours=19, minutes=45),  # Wed 19:45
+            )
+            # Tue is most likely
+            weights = (2, 1)
+        else:
+            deltas = (
+                datetime.timedelta(hours=-4, minutes=-15),  # Fri 19:45
+                datetime.timedelta(hours=15),  # Sat 15:00
+                datetime.timedelta(hours=17, minutes=30),  # Sat 17:30
+                datetime.timedelta(days=1, hours=15),  # Sun 15:00
+            )
+            # Sat 3pm is most likely
+            weights = (2, 4, 2, 1)
         delta = random.choices(deltas, weights, k=1)[0]
 
         # Make datetime object and return
@@ -1089,7 +1105,7 @@ class ILCProvider(BaseProvider):
             round_name = f"Round {n}"
             round_matches = [
                 self.match(
-                    kickoff=self.kickoff(kickoff),
+                    kickoff=self.kickoff(kickoff, midweek=kickoff.weekday() == 1),
                     round=round_name,
                     home=m[0],
                     away=m[1],
@@ -1157,7 +1173,10 @@ class ILCProvider(BaseProvider):
                     rounds += schedule
 
             # Generate matches
-            split_kickoff = kickoff + datetime.timedelta(days=7)
+            # Resume on the Saturday after the last pre-split round
+            split_kickoff = kickoff + datetime.timedelta(
+                days=(5 - kickoff.weekday()) % 7 + 7
+            )
             for section_number, s_rounds in enumerate(split_rounds, start=1):
                 kickoff = split_kickoff
                 for n, s_round in enumerate(s_rounds, start=1):

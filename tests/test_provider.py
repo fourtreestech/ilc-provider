@@ -372,6 +372,13 @@ class TestKickoff:
         kickoff = fake.kickoff(anchor=anchor)
         assert abs((anchor - kickoff.date()).days) < 4
 
+    def test_midweek_kickoff_is_tuesday_or_wednesday_evening(self):
+        anchor = datetime.date(2024, 1, 2)
+        for _ in range(20):
+            kickoff = fake.kickoff(anchor=anchor, midweek=True)
+            assert kickoff.weekday() in (1, 2)
+            assert kickoff.time() == datetime.time(19, 45)
+
 
 class TestTableRow:
     def test_row_has_correct_number_of_matches(self):
@@ -429,6 +436,31 @@ class TestLeague:
         assert league.split == 21
         for row in table:
             assert row[1] == 24
+
+    @pytest.mark.parametrize(
+        "kwargs",
+        [
+            {"team_count": 4, "games_per_opponent": 4, "split_mode": "none"},
+            {
+                "team_count": 4,
+                "games_per_opponent": 2,
+                "split_mode": "fixed",
+                "games_before_split": 1,
+            },
+        ],
+    )
+    def test_rounds_kick_off_on_matching_days(self, kwargs):
+        league = fake.league(**kwargs)
+        for round_matches in league.rounds.values():
+            kickoffs = [
+                datetime.datetime.fromisoformat(m.kickoff) for m in round_matches
+            ]
+            weekend = all(k.weekday() in (4, 5, 6) for k in kickoffs)
+            midweek = all(
+                k.weekday() in (1, 2) and k.time() == datetime.time(19, 45)
+                for k in kickoffs
+            )
+            assert weekend or midweek
 
     def test_split_mode_none(self):
         league = fake.league(team_count=8, games_per_opponent=4, split_mode="none")

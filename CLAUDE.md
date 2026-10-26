@@ -32,3 +32,4 @@ The whole package is a single module, `src/ilc_provider/__init__.py`:
 - Player IDs, match IDs, league IDs and team names are drawn through `fake.unique`, which remembers values for the life of the process; `tests/conftest.py` clears it before every test.
 - Generated objects are the models from the `ilc-models` dependency; changes to those models may require changes here.
 - Docs are Sphinx (`docs/source`, `api.rst` documents the module via docstrings), so public methods need Google-style docstrings (`Args:`/`Returns:`, rendered by napoleon).
+- Every function, method and parameter has type hints (including `-> None` on `__init__`), and docstrings must not repeat them: no types in `Args:`/`Returns:`, and no `Defaults to ...` when it just restates the signature default. Every function and method that returns a value has a short `Returns:` section (description only). Add `Raises:` where relevant.

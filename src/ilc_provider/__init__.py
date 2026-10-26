@@ -57,18 +57,18 @@ class SquadPlayer:
         * ``scorer_weight``: How likely this player is to score a goal (1-100)
 
     Args:
-        shirt_number (int): Player's squad number.
-        keeper (bool): True if this player is a goalkeeper. Defaults to False.
-        active_date (datetime.date | None): Date on which this player is active - this
-            will be used to generate a reasonable date of birth. Defaults to None.
+        shirt_number: Player's squad number.
+        keeper: True if this player is a goalkeeper.
+        active_date: Date on which this player is active - this will be used to
+            generate a reasonable date of birth.
     """
 
     def __init__(
         self,
         shirt_number: int,
-        keeper=False,
+        keeper: bool = False,
         active_date: datetime.date | None = None,
-    ):
+    ) -> None:
         """Initialize the squad player."""
         self.shirt_number = shirt_number
         self.keeper = keeper
@@ -81,7 +81,7 @@ class SquadPlayer:
         """Return a `BasePlayer` object corresponding to this `SquadPlayer`.
 
         Returns:
-            BasePlayer: The `BasePlayer` corresponding to this `SquadPlayer`
+            The `BasePlayer` for this squad player.
         """
         return self.player.base_player
 
@@ -96,19 +96,18 @@ class Team:
     """Randomly generated team.
 
     Args:
-        active_date (datetime.date | None): Date on which all players in this team's
-            squad are active - this will be used to generate reasonable dates of birth.
-            Defaults to None.
+        active_date: Date on which all players in this team's squad are active - this
+            will be used to generate reasonable dates of birth.
 
     Attributes:
-        name (str): Unique team name.
-        squad (list[SquadPlayer]): The team's squad.
-        strength (int): Team strength from 0 to 5, higher being stronger. Used by
+        name: Unique team name.
+        squad: The team's squad.
+        strength: Team strength from 0 to 5, higher being stronger. Used by
             :meth:`~ILCProvider.match` to weight the score and by
             :meth:`~ILCProvider.table_row` to weight wins and draws.
     """
 
-    def __init__(self, active_date: datetime.date | None = None):
+    def __init__(self, active_date: datetime.date | None = None) -> None:
         """Initialize the team with a name, squad and strength."""
         self.name = fake.unique.team_name()
         self.squad = fake.squad(active_date=active_date)
@@ -126,7 +125,7 @@ class ILCProvider(BaseProvider):
         """Return a random player ID.
 
         Returns:
-            int: Random player ID between 1 and 999,999
+            Random player ID between 1 and 999,999
         """
         return random.randint(1, 999_999)
 
@@ -134,7 +133,7 @@ class ILCProvider(BaseProvider):
         """Return a randomly generated BasePlayer.
 
         Returns:
-            BasePlayer: BasePlayer with random name and ID
+            BasePlayer with random name and ID.
         """
         return BasePlayer(
             player_id=fake.unique.player_id(),
@@ -149,13 +148,11 @@ class ILCProvider(BaseProvider):
         otherwise they will be between 17 and 35 on today's date.
 
         Args:
-            active_date (datetime.date | None): Date on which this player is active -
-                this will be used to generate a reasonable date of birth. Defaults to
-                None.
-
+            active_date: Date on which this player is active - this will be used to
+                generate a reasonable date of birth.
 
         Returns:
-            Player: Player with randomly generated attributes
+            Player with randomly generated attributes.
         """
         player_id = fake.unique.player_id()
         first_name = fake.first_name_male()
@@ -184,20 +181,18 @@ class ILCProvider(BaseProvider):
         )
 
     def squad(
-        self, size=25, keepers=3, active_date: datetime.date | None = None
+        self, size: int = 25, keepers: int = 3, active_date: datetime.date | None = None
     ) -> list[SquadPlayer]:
         """Return a randomly generated list of SquadPlayers.
 
         Args:
-            size (int): Number of players to generate. Defaults to 25.
-            keepers (int): Number of goalkeepers to include. Defaults to 3.
-            active_date (datetime.date | None): Date on which all players in this squad
-                are active - this will be used to generate reasonable dates of birth.
-                Defaults to None.
-
+            size: Number of players to generate.
+            keepers: Number of goalkeepers to include.
+            active_date: Date on which all players in this squad are active - this
+                will be used to generate reasonable dates of birth.
 
         Returns:
-            list[SquadPlayer]: List of randomly generated squad players
+            Randomly generated squad players.
         """
         # Shirt numbers - prefer 2-11, then 12-19 then 20-39
         shirts = list(range(2, 40))
@@ -232,12 +227,10 @@ class ILCProvider(BaseProvider):
         otherwise a new set of players will be randomly generated.
 
         Args:
-            squad (list[SquadPlayer] | None): Squad players to choose from. Defaults to
-                None.
-
+            squad: Squad players to choose from.
 
         Returns:
-            Lineup: Lineup with randomly generated players
+            Lineup with randomly generated players.
         """
         # Get random squad
         if squad is None:
@@ -280,14 +273,11 @@ class ILCProvider(BaseProvider):
         otherwise new sets of players will be randomly generated.
 
         Args:
-            home_squad (list[SquadPlayer] | None): Squad players for the home team.
-                Defaults to None.
-            away_squad (list[SquadPlayer] | None): Squad players for the away team.
-                Defaults to None.
-
+            home_squad: Squad players for the home team.
+            away_squad: Squad players for the away team.
 
         Returns:
-            Lineups: Lineups with randomly generated players
+            Home and away lineups with randomly generated players.
         """
         return Lineups(home=self.lineup(home_squad), away=self.lineup(away_squad))
 
@@ -295,7 +285,7 @@ class ILCProvider(BaseProvider):
         """Return a team suffix (United, City, etc.).
 
         Returns:
-            str: Randomly selected suffix
+            Randomly selected suffix.
         """
         suffixes = (
             "Albion",
@@ -325,7 +315,7 @@ class ILCProvider(BaseProvider):
         """Return a randomly generated team name.
 
         Returns:
-            str: Team name
+            Randomly generated team name.
         """
         return f"{fake.city()} {fake.team_suffix()}".rstrip()
 
@@ -333,13 +323,11 @@ class ILCProvider(BaseProvider):
         """Return a randomly generated team.
 
         Args:
-            active_date (datetime.date | None): Date on which all players in this team's
-                squad are active - this will be used to generate reasonable dates of
-                birth. Defaults to None.
-
+            active_date: Date on which all players in this team's squad are active -
+                this will be used to generate reasonable dates of birth.
 
         Returns:
-            Team: Randomly generated team, populated with a squad of players
+            Randomly generated team, populated with a squad of players.
         """
         return Team(active_date=active_date)
 
@@ -347,7 +335,7 @@ class ILCProvider(BaseProvider):
         """Return a random match ID.
 
         Returns:
-            int: Random match ID between 1 and 999,999
+            Random match ID between 1 and 999,999
         """
         return random.randint(1, 999_999)
 
@@ -366,15 +354,14 @@ class ILCProvider(BaseProvider):
         supplied will be randomly generated (``status`` defaults to 'FT').
 
         Args:
-            kickoff (datetime.datetime | None): Kickoff time. Defaults to None.
-            round (str | None): Round this match is part of. Defaults to None.
-            home (Team | None): Home team. Defaults to None.
-            away (Team | None): Away team. Defaults to None.
-            status (str | None): Match status. Defaults to 'FT'.
-
+            kickoff: Kickoff time.
+            round: Round this match is part of.
+            home: Home team.
+            away: Away team.
+            status: Match status. Defaults to 'FT'.
 
         Returns:
-            Match: Randomly generated match
+            Randomly generated match.
         """
         # Kickoff time if not provided
         if kickoff is None:
@@ -591,19 +578,15 @@ class ILCProvider(BaseProvider):
         Any parameters not supplied will be randomly generated.
 
         Args:
-            team (str | None): Name of the team making this substitution. Defaults to
-                None.
-            sub_count (int): Number of substitutions to be made in this window, or 0 to
-                choose a random number. Defaults to 0.
-            time (EventTime | None): Time of the substitutions. Defaults to None.
-            possible_exits (list[BasePlayer] | None): Players who can come off the
-                field. Defaults to None.
-            possible_entries (list[BasePlayer] | None): Players who can come on the
-                field. Defaults to None.
-
+            team: Name of the team making this substitution.
+            sub_count: Number of substitutions to be made in this window, or 0 to choose
+                a random number.
+            time: Time of the substitutions.
+            possible_exits: Players who can come off the field.
+            possible_entries: Players who can come on the field.
 
         Returns:
-            list[Substitution]: Randomly generated substitutions
+            Randomly generated substitutions.
         """
         if team is None:
             team = self.team_name()
@@ -652,17 +635,13 @@ class ILCProvider(BaseProvider):
         Any parameters not supplied will be randomly generated.
 
         Args:
-            team (str | None): Name of the team making this substitution. Defaults to
-                None.
-            time (EventTime | None): Time of the substitution. Defaults to None.
-            possible_exits (list[BasePlayer] | None): Players who can come off the
-                field. Defaults to None.
-            possible_entries (list[BasePlayer] | None): Players who can come on the
-                field. Defaults to None.
-
+            team: Name of the team making this substitution.
+            time: Time of the substitution.
+            possible_exits: Players who can come off the field.
+            possible_entries: Players who can come on the field.
 
         Returns:
-            Substitution: Randomly generated substitution
+            Randomly generated substitution.
         """
         if team is None:
             team = self.team_name()
@@ -695,14 +674,12 @@ class ILCProvider(BaseProvider):
         Any parameters not supplied will be randomly generated.
 
         Args:
-            team (str | None): Name of the team receiving this card. Defaults to None.
-            time (EventTime | None): Time of the card. Defaults to None.
-            players (list[BasePlayer] | None): Players who can receive the card.
-                Defaults to None.
-
+            team: Name of the team receiving this card.
+            time: Time of the card.
+            players: Players who can receive the card.
 
         Returns:
-            Card: Randomly generated card event
+            Randomly generated card event.
         """
         if team is None:  # pragma: no cover
             team = self.team_name()
@@ -731,18 +708,15 @@ class ILCProvider(BaseProvider):
         Any parameters not supplied will be randomly generated.
 
         Args:
-            team (Team | None): Team scoring this goal. Defaults to None.
-            time (EventTime | None): Time of the goal. Defaults to None.
-            goal_type (str | None): One of 'N' (normal goal), 'O' (own goal), 'P'
-                (penalty). Defaults to None.
-            players (tuple[list[BasePlayer], list[BasePlayer]] | None): Players who can
-                score the goal as a two-item tuple, the scoring team's players are the
-                first item and the opposing team's players (for own goals) are the
-                second item. Defaults to None.
-
+            team: Team scoring this goal.
+            time: Time of the goal.
+            goal_type: One of 'N' (normal goal), 'O' (own goal), 'P' (penalty).
+            players: Players who can score the goal as a two-item tuple, the scoring
+                team's players are the first item and the opposing team's players
+                (for own goals) are the second item.
 
         Returns:
-            Goal: Randomly generated goal event
+            Randomly generated goal event.
         """
         if team is None:  # pragma: no cover
             team = self.team()
@@ -788,7 +762,7 @@ class ILCProvider(BaseProvider):
 
         return Goal(team=team.name, time=time, goal_type=goal_type, scorer=scorer)
 
-    def event_time(self, first_half_weighting=50) -> EventTime:
+    def event_time(self, first_half_weighting: int = 50) -> EventTime:
         """Return a randomly generated event time.
 
         The ``first_half_weighting`` parameter controls how likely it is
@@ -797,12 +771,10 @@ class ILCProvider(BaseProvider):
         the likelihood of a first half time.
 
         Args:
-            first_half_weighting (int): Weight / 100 to give to a time in the first
-                half. Defaults to 50.
-
+            first_half_weighting: Weight / 100 to give to a time in the first half.
 
         Returns:
-            EventTime: Randomly generated event time
+            Randomly generated event time.
         """
         half = 0 if random.randint(1, 100) <= first_half_weighting else 1
         time = random.randint(1, 50)
@@ -827,14 +799,12 @@ class ILCProvider(BaseProvider):
         If ``anchor`` is not provided the kickoff will be a random Saturday at 3pm.
 
         Args:
-            anchor (datetime.date | None): Saturday to anchor this gameweek, or
-                Tuesday if ``midweek`` is true. Defaults to None.
-            midweek (bool): Whether the gameweek is played midweek. Only used if
-                ``anchor`` is provided. Defaults to False.
-
+            anchor: Saturday to anchor this gameweek, or Tuesday if ``midweek`` is true.
+            midweek: Whether the gameweek is played midweek. Only used if ``anchor`` is
+                provided.
 
         Returns:
-            datetime.datetime: Randomly generated kickoff date and time
+            Randomly generated kickoff date and time.
         """
         # No anchor supplied - generate a random Saturday 3pm kickoff time
         if anchor is None:
@@ -877,13 +847,11 @@ class ILCProvider(BaseProvider):
         Any parameters not supplied will be randomly generated.
 
         Args:
-            matches (int): Matches played, or 0 to choose a random number between 1
-                and 38. Defaults to 0.
-            team (Team | None): Team. Defaults to None.
-
+            matches: Matches played, or 0 to choose a random number between 1 and 38.
+            team: Team.
 
         Returns:
-            TableRow: Randomly generated row from a league table
+            Randomly generated row from a league table.
         """
 
         def weighted_results(matches: int, strength: int) -> int:
@@ -892,12 +860,11 @@ class ILCProvider(BaseProvider):
             Higher strength will tend towards a higher return value.
 
             Args:
-                matches (int): Number of matches to play.
-                strength (int): Strength factor (0-5).
-
+                matches: Number of matches to play.
+                strength: Strength factor (0-5).
 
             Returns:
-                int: Weighted random number of matches
+                Weighted random number of matches
             """
             matches_per_step = max((matches + 1) // 5, 1)
             steps = [min(n // matches_per_step, 5) for n in range(matches + 1)]
@@ -944,7 +911,7 @@ class ILCProvider(BaseProvider):
         """Return a random league ID.
 
         Returns:
-            int: Random league ID between 1 and 999
+            Random league ID between 1 and 999
         """
         return random.randint(1, 999)
 
@@ -952,7 +919,7 @@ class ILCProvider(BaseProvider):
         """Return a randomly selected league name.
 
         Returns:
-            str: Random league name
+            Randomly selected league name.
         """
         names = (
             "Premiership",
@@ -986,22 +953,20 @@ class ILCProvider(BaseProvider):
         Any other parameters not supplied will be randomly generated.
 
         Args:
-            team_count (int): Number of teams in this league, or 0 to choose a random
+            team_count: Number of teams in this league, or 0 to choose a random
                 even number between 8 and 24. An odd number is rounded down to the
-                nearest even number. Defaults to 0.
-            matches (bool): Whether matches should be added to this league. Defaults to
-                True.
-            games_per_opponent (int): Number of games to play against each other team
-                (including post-split games). Defaults to 0.
-            split_mode (str): One of 'none' (no split), 'auto' (auto-generated split
-                point) or 'fixed' (use split point provided). Defaults to 'auto'.
-            games_before_split (int): Number of matches to play against each opponent
+                nearest even number.
+            matches: Whether matches should be added to this league.
+            games_per_opponent: Number of games to play against each other team
+                (including post-split games).
+            split_mode: One of 'none' (no split), 'auto' (auto-generated split point) or
+                'fixed' (use split point provided).
+            games_before_split: Number of matches to play against each opponent
                 before the league splits in 'fixed' split mode, ignored if `split_mode`
-                is 'none' or 'auto'. Defaults to 3.
-
+                is 'none' or 'auto'.
 
         Returns:
-            League: Randomly generated league
+            Randomly generated league.
 
         Raises:
             ValueError: If ``matches`` is true, ``split_mode`` is 'fixed' and
@@ -1225,7 +1190,7 @@ class ILCProvider(BaseProvider):
                 hashing a password. Mutually exclusive with ``password``.
 
         Returns:
-            User: Randomly generated user
+            Randomly generated user.
 
         Raises:
             ValueError: If both ``password`` and ``password_hash`` are supplied.
@@ -1256,11 +1221,10 @@ def match_schedule(teams: list[Team]) -> list[list[tuple[Team, Team]]]:
     in the form of (home, away) tuples.
 
     Args:
-        teams (list[Team]): Teams to schedule.
-
+        teams: Teams to schedule.
 
     Returns:
-        list[list[tuple[Team, Team]]]: Schedule of matches
+        Schedule of matches, one list of fixtures per matchday.
     """
     team_count = len(teams)
 
@@ -1298,11 +1262,10 @@ def invert_schedule(
     Also shuffles the match days so they reoccur in a randomized order.
 
     Args:
-        schedule (list[list[tuple[Team, Team]]]): Schedule to invert.
-
+        schedule: Schedule to invert.
 
     Returns:
-        list[list[tuple[Team, Team]]]: Inverted schedule
+        Schedule with home and away swapped, in shuffled order.
     """
     rounds = []
     for round in schedule:
@@ -1317,13 +1280,13 @@ def players_on(
     """Return the list of players on the pitch at a given time.
 
     Args:
-        team (str): Team name.
-        starting (list[BasePlayer]): Starting XI.
-        events (list[Event]): Match events.
-        time (EventTime): Time to check.
+        team: Team name.
+        starting: Starting XI.
+        events: Match events.
+        time: Time to check.
 
     Returns:
-        list[BasePlayer]: Players on the pitch at ``time``.
+        Players on the pitch at ``time``.
     """
     # Starting lineup
     players = starting[:]
@@ -1352,12 +1315,11 @@ def _years_before(date: datetime.date, years: int) -> datetime.date:
     29 February maps to 28 February when the earlier year is not a leap year.
 
     Args:
-        date (datetime.date): Date to count back from.
-        years (int): Number of years to go back.
-
+        date: Date to count back from.
+        years: Number of years to go back.
 
     Returns:
-        datetime.date: The same day and month `years` years earlier
+        The same day and month ``years`` years earlier.
     """
     try:
         return date.replace(year=date.year - years)
@@ -1366,19 +1328,18 @@ def _years_before(date: datetime.date, years: int) -> datetime.date:
 
 
 def _unique_choices(
-    population: MutableSequence[Any], weights: list[int] | None = None, k=1
+    population: MutableSequence[Any], weights: list[int] | None = None, k: int = 1
 ) -> list[Any]:
     """Return a `k` sized list of elements chosen from the `population` without replacement.
 
     Args:
-        population (MutableSequence[Any]): Population to select elements from.
-        weights (list[int] | None): If specified, selections are made
-            according to the relative weights. Defaults to None.
-        k (int): Number of selections to return. Defaults to 1.
-
+        population: Population to select elements from.
+        weights: If specified, selections are made according to the relative
+            weights.
+        k: Number of selections to return.
 
     Returns:
-        list[Any]: Selected elements
+        Selected elements.
     """
     _population = population[:]
     _weights = weights[:] if weights is not None else None

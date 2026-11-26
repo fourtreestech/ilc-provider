@@ -10,7 +10,7 @@ requires-python = ">=3.12"
 license = "MIT"
 dependencies = [
     "faker>=37.0.2",
-    "ilc-models>=0.3.1",
+    "ilc-models>=0.3.2",
 ]
 classifiers = [
   "Development Status :: 4 - Beta",
@@ -21,6 +21,7 @@ classifiers = [
   "Programming Language :: Python :: 3.12",
   "Programming Language :: Python :: 3.13",
   "Programming Language :: Python :: 3.14",
+  "Programming Language :: Python :: 3.15",
 ]
 
 [project.urls]
@@ -62,7 +63,7 @@ percent_path = ["totals", "percent_covered_display"]
 
 [tool.tox]
 requires = ["tox>=4.24", "tox-uv>=1.37.0"]
-env_list = ["3.14", "3.13", "3.12", "lowest", "highest"]
+env_list = ["3.15", "3.14", "3.13", "3.12", "lowest", "highest"]
 
 [tool.tox.env_run_base]
 description = "Run tests under {base_python}"
@@ -83,7 +84,7 @@ commands_pre = [["uv", "pip", "install", "--resolution", "lowest-direct", "-e", 
 [tool.tox.env.highest]
 description = "Run tests under {base_python} with highest dependency versions"
 runner = "uv-venv-runner"
-base_python = ["python3.14"]
+base_python = ["python3.15"]
 skip_install = true
 dependency_groups = []
 allowlist_externals = ["uv"]

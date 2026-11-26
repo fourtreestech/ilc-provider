@@ -21,6 +21,8 @@ cov:
 
 # Upgrade dependencies
 upgrade:
+    uv self update
+    uv python upgrade
     uv lock --upgrade
     uv sync
     uv export --no-default-groups --group docs --no-emit-project --no-hashes --no-header --no-annotate -q > docs/requirements.txt

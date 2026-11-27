@@ -958,7 +958,7 @@ class ILCProvider(BaseProvider):
         If ``games_per_opponent`` is not provided it will default to
         2 for leagues with more than 12 teams, or 4 otherwise.
 
-        If ``split_mode`` is not provided it will default to `auto` and
+        If ``split_mode`` is not provided it will default to 'auto' and
         a split will occur in leagues with 3 or more games per opponent.
 
         Any other parameters not supplied will be randomly generated.
@@ -973,7 +973,7 @@ class ILCProvider(BaseProvider):
             split_mode: One of 'none' (no split), 'auto' (auto-generated split point) or
                 'fixed' (use split point provided).
             games_before_split: Number of matches to play against each opponent
-                before the league splits in 'fixed' split mode, ignored if `split_mode`
+                before the league splits in 'fixed' split mode, ignored if ``split_mode``
                 is 'none' or 'auto'.
 
         Returns:
@@ -1185,7 +1185,7 @@ class ILCProvider(BaseProvider):
         """Return a randomly generated user.
 
         Takes a number of optional parameters which if supplied
-        will be added to the user. A ``email`` or ``password`` that is not
+        will be added to the user. An ``email`` or ``password`` that is not
         supplied is randomly generated, and a generated email is unique
         (as is the username derived from it). The ``username`` is not
         random: if not supplied it is the part of the email before the '@'.

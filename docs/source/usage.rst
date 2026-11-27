@@ -36,8 +36,9 @@ Users
 -----
 
 Fake users can be generated too. Any of ``email``, ``password``,
-``username`` and ``status`` can be supplied; the rest are generated.
-Generated emails (and the usernames derived from them) are unique::
+``username``, ``status``, ``created_at`` and ``teams`` can be supplied;
+the rest are generated. Generated emails (and the usernames derived from
+them) are unique::
 
     user = ilc_fake.user(status="active")
     assert user.username == user.email.split("@")[0]

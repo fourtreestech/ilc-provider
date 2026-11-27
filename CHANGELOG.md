@@ -1,5 +1,16 @@
 # Changelog
 
+## [Unreleased]
+
+### Added
+
+- Add `created_at` and `teams` options to `user`; by default users get a random creation time and 1-4 favourite teams
+- Support Python 3.15
+
+### Changed
+
+- Require `ilc-models>=0.3.2`
+
 ## [0.2.0] - 2026-10-26
 
 ### Added

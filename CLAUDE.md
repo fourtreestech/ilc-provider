@@ -14,10 +14,11 @@ Tasks are defined in the `justfile`:
 - `uv run pytest tests/test_provider.py::test_name` — run a single test
 - `just cov` — tests with coverage, then regenerates the coverage badge
 - `just check` — `ruff check --fix`, `ruff format`, and `ty check` (via `uvx`)
-- `just tox` — test matrix across Python 3.12–3.14 plus lowest/highest dependency resolutions
+- `just tox` — test matrix across Python 3.12–3.15 plus lowest/highest dependency resolutions
 - `just docs` — build Sphinx docs (warnings are errors) into `docs/build/html`
 - `just bump` — bump patch version with bumpver. The version lives in `pyproject.toml`, `README.md` badge, `src/ilc_provider/__init__.py` (`__version__`) and `docs/source/conf.py`; bumpver keeps them in sync, so don't edit them by hand.
 - `just upgrade` — upgrades the lockfile, re-exports `docs/requirements.txt` (used by Read the Docs) and runs `tox`
+- `just sync`, `just tag`, `just publish` — release tasks (merge `dev` into `main` and push, push a version tag, publish to PyPI). Work happens on `dev`; these push to the remote or PyPI, so only run them when asked.
 
 Tests run with `pytest-randomly`, so test order is shuffled; tests must not depend on order or on a particular random seed. For the same reason, branches that only some seeds reach are marked `# pragma: no cover` so the coverage figure doesn't vary with the seed; keep that convention.
 

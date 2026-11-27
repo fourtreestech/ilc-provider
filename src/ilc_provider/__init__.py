@@ -235,40 +235,49 @@ class ILCProvider(BaseProvider):
         Creates a lineup with 11 starting players and 7 substitutes.
 
         If ``squad`` is supplied the players will be chosen from the squad,
-        otherwise a new set of players will be randomly generated.
+        otherwise a new set of players will be randomly generated. One
+        goalkeeper starts and, if the squad has another, one is a substitute;
+        a squad with a single goalkeeper has only outfield substitutes.
 
         Args:
             squad: Squad players to choose from.
 
         Returns:
             Lineup with randomly generated players.
+
+        Raises:
+            ValueError: If ``squad`` has no goalkeepers.
         """
         # Get random squad
         if squad is None:
             squad = self.squad(size=18, keepers=2)
 
-        # Decide which goalkeeper will start
+        # Decide which goalkeeper will start, and which (if any) is a substitute
         keepers = [p for p in squad if p.keeper]
+        if not keepers:
+            msg = "squad must include at least one goalkeeper"
+            raise ValueError(msg)
         keeper_weights = [p.selection_weight for p in keepers]
         keeper1 = random.choices(keepers, weights=keeper_weights)[0]
-        keeper2 = next(p for p in keepers if p != keeper1)
+        sub_keepers = [p for p in keepers if p != keeper1][:1]
 
         # Get outfield players
         outfield = [p for p in squad if p not in keepers]
         outfield_weights = [p.selection_weight for p in outfield]
         starting = _unique_choices(outfield, weights=outfield_weights, k=10)
 
-        # Get outfield subs
+        # Get outfield subs - fill the bench to 7 substitutes
         remaining = [p for p in outfield if p not in starting]
         remaining_weights = [p.selection_weight for p in remaining]
-        subs = _unique_choices(remaining, weights=remaining_weights, k=6)
+        subs = _unique_choices(
+            remaining, weights=remaining_weights, k=7 - len(sub_keepers)
+        )
 
         # Make lineup
         lineup = Lineup(
             starting=[(keeper1.shirt_number, keeper1.base_player)]
             + [(p.shirt_number, p.base_player) for p in starting],
-            subs=[(keeper2.shirt_number, keeper2.base_player)]
-            + [(p.shirt_number, p.base_player) for p in subs],
+            subs=[(p.shirt_number, p.base_player) for p in sub_keepers + subs],
         )
 
         return lineup

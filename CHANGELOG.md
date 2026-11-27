@@ -10,6 +10,11 @@
 ### Changed
 
 - Require `ilc-models>=0.3.2`
+- `lineup` raises `ValueError` if the squad has no goalkeepers
+
+### Fixed
+
+- Support squads with only one goalkeeper in `lineup`
 
 ## [0.2.0] - 2026-10-26
 

@@ -261,6 +261,26 @@ class TestLineup:
         keepers = sum(1 for p in lineup.starting if p[0] in keeper_shirts)
         assert keepers == 1
 
+    def test_squad_with_one_keeper_has_outfield_bench(self):
+        squad = fake.squad(keepers=1)
+        keeper = next(p for p in squad if p.keeper)
+        lineup = fake.lineup(squad=squad)
+        assert lineup.starting[0] == (keeper.shirt_number, keeper.base_player)
+        assert len(lineup.subs) == 7
+        assert keeper.base_player not in [p[1] for p in lineup.subs]
+
+    def test_squad_with_one_keeper_can_play_match(self):
+        home, away = fake.team(), fake.team()
+        for team in (home, away):
+            team.squad = [p for p in team.squad if not p.keeper or p.shirt_number == 1]
+        match = fake.match(home=home, away=away)
+        assert len(match.lineups.home.subs) == 7
+
+    def test_squad_without_keeper_raises(self):
+        squad = [p for p in fake.squad() if not p.keeper]
+        with pytest.raises(ValueError, match="goalkeeper"):
+            fake.lineup(squad=squad)
+
 
 class TestMatch:
     def test_unplayed_match_has_no_lineups_or_events(self):

@@ -1,6 +1,7 @@
 """Tests for the ilc_provider package"""
 
 import datetime
+import inspect
 import itertools
 import random
 from collections import Counter
@@ -276,7 +277,7 @@ class TestMatch:
         match = fake.match()
         home = away = 0
         # Count the goal events for each team
-        for goal in match.goals:
+        for goal in match.goals:  # pragma: no cover
             assert goal.team in (match.teams.home, match.teams.away)
             if goal.team == match.teams.home:  # pragma: no cover
                 home += 1
@@ -616,3 +617,34 @@ class TestUser:
         password = fake.password()
         user = fake.user(password=password)
         assert user.verify_password(password)
+
+    def test_supplied_created_at_is_kept(self):
+        created_at = datetime.datetime(2024, 5, 1, 12, 30, tzinfo=datetime.UTC)
+        assert fake.user(created_at=created_at).created_at == created_at
+
+    def test_naive_created_at_is_treated_as_utc(self):
+        created_at = datetime.datetime(2024, 5, 1, 12, 30)
+        user = fake.user(created_at=created_at)
+        assert user.created_at == created_at.replace(tzinfo=datetime.UTC)
+
+    def test_created_at_can_be_none(self):
+        assert fake.user(created_at=None).created_at is None
+
+    def test_default_created_at_is_utc(self):
+        created_at = fake.user().created_at
+        assert created_at is not None
+        assert created_at.utcoffset() == datetime.timedelta(0)
+
+    def test_supplied_teams_are_kept(self):
+        teams = ["Leeds United", "Bath City"]
+        assert fake.user(teams=teams).teams == teams
+
+    def test_empty_teams_are_kept(self):
+        assert fake.user(teams=[]).teams == []
+
+    def test_default_teams(self):
+        assert 1 <= len(fake.user().teams) <= 4
+
+    def test_signature_shows_unset_default(self):
+        parameter = inspect.signature(fake.user).parameters["created_at"]
+        assert repr(parameter.default) == "UNSET"

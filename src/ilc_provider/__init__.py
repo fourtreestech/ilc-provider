@@ -16,6 +16,7 @@ providers as you would any other Faker provider e.g.::
 
 import contextlib
 import datetime
+import enum
 import random
 from collections.abc import MutableSequence
 from operator import attrgetter
@@ -116,6 +117,16 @@ class Team:
     def __str__(self) -> str:  # pragma: no cover
         """Return the team name."""
         return self.name
+
+
+class _Unset(enum.Enum):
+    """Marker for an optional argument that was not supplied."""
+
+    UNSET = enum.auto()
+
+    def __repr__(self) -> str:
+        """Return a short name for use in rendered signatures."""
+        return "UNSET"
 
 
 class ILCProvider(BaseProvider):
@@ -1168,7 +1179,7 @@ class ILCProvider(BaseProvider):
         username: str | None = None,
         status: Literal["pending", "active"] | None = None,
         password_hash: str | None = None,
-        created_at: datetime.datetime | None = None,
+        created_at: datetime.datetime | _Unset | None = _Unset.UNSET,
         teams: list[str] | None = None,
     ) -> User:
         """Return a randomly generated user.
@@ -1180,6 +1191,12 @@ class ILCProvider(BaseProvider):
         random: if not supplied it is the part of the email before the '@'.
         If ``status`` is not supplied the model's default ('pending') applies.
 
+        If ``created_at`` is not supplied it is a random time between 1970 and
+        now; pass ``None`` for a user whose creation time is unknown. A naive
+        timestamp, supplied or generated, is treated as UTC. If ``teams`` is
+        not supplied the user gets 1-4 random team names (duplicates are
+        dropped, so there may be fewer); pass an empty list for no teams.
+
         Hashing a password is slow, so when generating many users hash a
         password once and pass the resulting ``password_hash`` to each.
 
@@ -1190,7 +1207,7 @@ class ILCProvider(BaseProvider):
             status: User status.
             password_hash: Precomputed Argon2 password hash, used instead of
                 hashing a password. Mutually exclusive with ``password``.
-            created_at: When the user model was created.
+            created_at: When the user was created, or ``None`` if unknown.
             teams: User's favourite teams.
 
         Returns:
@@ -1215,8 +1232,14 @@ class ILCProvider(BaseProvider):
             data["password"] = fake.password() if password is None else password
         else:
             data["password_hash"] = password_hash
-        data["created_at"] = created_at or fake.date_time()
-        data["teams"] = teams or [self.team_name() for _ in range(random.randint(1, 4))]
+        data["created_at"] = (
+            fake.date_time() if created_at is _Unset.UNSET else created_at
+        )
+        data["teams"] = (
+            [self.team_name() for _ in range(random.randint(1, 4))]
+            if teams is None
+            else teams
+        )
         return User.model_validate(data)
 
 

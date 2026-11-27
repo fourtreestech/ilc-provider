@@ -1168,6 +1168,8 @@ class ILCProvider(BaseProvider):
         username: str | None = None,
         status: Literal["pending", "active"] | None = None,
         password_hash: str | None = None,
+        created_at: datetime.datetime | None = None,
+        teams: list[str] | None = None,
     ) -> User:
         """Return a randomly generated user.
 
@@ -1188,6 +1190,8 @@ class ILCProvider(BaseProvider):
             status: User status.
             password_hash: Precomputed Argon2 password hash, used instead of
                 hashing a password. Mutually exclusive with ``password``.
+            created_at: When the user model was created.
+            teams: User's favourite teams.
 
         Returns:
             Randomly generated user.
@@ -1211,6 +1215,8 @@ class ILCProvider(BaseProvider):
             data["password"] = fake.password() if password is None else password
         else:
             data["password_hash"] = password_hash
+        data["created_at"] = created_at or fake.date_time()
+        data["teams"] = teams or [self.team_name() for _ in range(random.randint(1, 4))]
         return User.model_validate(data)
 
 
